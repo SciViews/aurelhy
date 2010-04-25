@@ -13,15 +13,37 @@
 
 \usage{
 auremask(type = "radial", dist = c(1, 6, 11, 16, 21, 26),
-  angles = 0:7 * pi/4 + 0.01, n = 11, keep.origin = FALSE)
+    angles = 0:7 * pi/4 + 0.01, n = 11, keep.origin = FALSE)
 
-\method{print}{auremask}(x, grid, ...)
-\method{plot}{auremask}(x, y, ...)
+\method{print}{auremask}(x, grid, \dots)
+\method{plot}{auremask}(x, y, \dots)
 }
 
 \arguments{
   \item{type}{ the type of mask, either \code{"radial"} (by default), or
-    \code{"rectangular"} as the initial version of the AURELHY method. }
+    \code{"rectangular"} as in the initial version of the AURELHY method. }
+  \item{dist}{ A vector of distances (in km) to consider in the mask for the
+    \code{"radial"} mask, or the largest distance to consider for a
+    \code{"rectangular"} mask }
+  \item{angles}{ A vector of angles in radians to use to construct a
+    \code{"radial"} mask. This argument is ignored for \code{"rectangular"}
+    mask. Avoid to use \"exact\" angles, like 0 or pi/4, because you will have
+    points going into one or the other sector of your mask, depending on
+    rounding of the numbers! A slight shift angle (0.01, by default) avoids this
+    unstability }
+  \item{n}{ The number of grid points in latitude and longitude to use for a
+    \code{"rectangular"} mask. For instance, if \code{n = 11}, the mask will be
+    made of 11*11 = 121 points (minus one if \code{keep.origin is FALSE}). This
+    argument is ignored for a \code{"radial"} mask. }
+  \item{keep.origin}{ Is the origin where the mask is centered considered as
+    one point of the grid, or not (by default, not, as in the original
+    implementation of the AURELHY method) }
+  \item{x}{ An 'auremask' object }
+  \item{grid}{ A reference grid, as a 'geomat' object against which the mask is
+    tested (print or plot the number of points that are located in each sector
+    of the mask)}
+  \item{y}{ Same as \code{grid} }
+  \item{\dots}{ further arguments passed to the function }
 }
 
 \details{
@@ -31,22 +53,22 @@ auremask(type = "radial", dist = c(1, 6, 11, 16, 21, 26),
 
 \value{
   An 'auremask' object with all information required to mask a DEM for creating
-  landscape variables.
+  landscape variables required by the AURELHY method.
 }
 
 \author{
   Philippe Grosjean <phgrosjean@sciviews.org>
 }
 
-\seealso{ \code{\link{polarcoords}} }
+\seealso{ \code{\link{polarcoords}}, \code{\link{geomat}} }
 
 \examples{
 # Default mask
 ag <- auremask()
 ag
 # Get an example terrain model and apply the mask on it
-data(maroc.tm)
-plot(ag, maroc.tm)
+data(morocco)
+plot(ag, morocco)
 }
 
 \keyword{utilities}

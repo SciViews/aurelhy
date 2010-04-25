@@ -1,0 +1,623 @@
+#LyX 1.6.5 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+% \VignetteIndexEntry{AURELHY interpolation}
+%\VignettePackage{aurelhy}
+
+% provides caption formatting
+\usepackage[labelfont=bf, tableposition=top]{caption}
+\pdfimageresolution 96
+\end_preamble
+\use_default_options false
+\begin_modules
+sweave
+\end_modules
+\language english
+\inputencoding auto
+\font_roman palatino
+\font_sans berasans
+\font_typewriter beramono
+\font_default_family default
+\font_sc true
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\float_placement tbh
+\paperfontsize default
+\spacing single
+\use_hyperref true
+\pdf_title "AURELHY interpolation"
+\pdf_author "Philippe Grosjean"
+\pdf_subject "Introduction to the aurelhy package"
+\pdf_keywords "georeferenced data, interpolation, kriging, landscape"
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks true
+\pdf_pdfborder false
+\pdf_colorlinks true
+\pdf_backref false
+\pdf_pdfusetitle true
+\pdf_quoted_options "linkcolor=blue, urlcolor=blue, citecolor=blue, pagecolor=blue"
+\papersize a4paper
+\use_geometry false
+\use_amsmath 0
+\use_esint 0
+\cite_engine natbib_authoryear
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 2
+\paperpagestyle default
+\bullet 0 0 17 -1
+\bullet 1 0 15 -1
+\bullet 2 0 8 -1
+\bullet 3 0 9 -1
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+AURELHY interpolation with R
+\end_layout
+
+\begin_layout Author
+Ph.
+ Grosjean <phgrosjean@sciviews.org>
+\end_layout
+
+\begin_layout Part
+Introduction
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+setkeys{Gin}{width=1.00
+\backslash
+textwidth}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout R-Opts
+keep.source = TRUE, pdf = TRUE, eps = FALSE
+\end_layout
+
+\begin_layout Standard
+AURELHY (ref) is one of the most powerful interpolation method for georeferenced
+ hydrophysical data.
+ Terrain information is used in the interpolation process.
+ There are several steps:
+\end_layout
+
+\begin_layout Itemize
+Select a mask to define points used for landscape description
+\end_layout
+
+\begin_layout Itemize
+Simplification of the landscape description using the few first principal
+ axes after performing a PCA on the whole landscape descriptors
+\end_layout
+
+\begin_layout Itemize
+Prediction of the data to interpolate using a linear model with the principal
+ axes and a few more descriptors as dependant variables
+\end_layout
+
+\begin_layout Itemize
+Calculation of the residuals from this regression
+\end_layout
+
+\begin_layout Itemize
+Kriging of the residuals
+\end_layout
+
+\begin_layout Itemize
+Addition of the predicted values from the linear model and the points from
+ the kriged surface of the residuals
+\end_layout
+
+\begin_layout Standard
+At each of these steps, there are several parameters to fine-tune the method.
+ Best choice of parameters for a given application requires analysis of
+ the step just being performed.
+ R eases such an exploration by providing a number of descriptive tables
+ and graphs easily.
+ Thus, a transposition of the AURELHY interpolation method into R allows
+ for a more comfortable environment to fine-tune the method.
+\end_layout
+
+\begin_layout Section
+Georeferenced data
+\end_layout
+
+\begin_layout Standard
+In R, there are several packages dealing with georeferenced data.
+ They are presented in the 
+\begin_inset Flex CharStyle:Pkg
+status collapsed
+
+\begin_layout Plain Layout
+Spatial
+\end_layout
+
+\end_inset
+
+ CRAN task view.
+ In AURELHY, we need two different kinds of georeferenced data:
+\end_layout
+
+\begin_layout Enumerate
+Data distributed on a regular grid, like DEM (Digital Elevation Model) data
+ used to calculate landscape descriptors.
+ Resulting interpolated data are also presented on a regular grid and should
+ also fit in such a kind of object.
+\end_layout
+
+\begin_layout Enumerate
+Values recorded at given stations.
+ Each point is referenced as its longitude-latitude (i.e., x-y location in
+ degrees) and consists in one value peasured at that station.
+\end_layout
+
+\begin_layout Standard
+In R, and R additional packages distributed on CRAN (Comprehensive R Archive
+ Network, 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+http://cran.r-project.org
+\end_layout
+
+\end_inset
+
+), there are many packages dealing with spatial data, and it is not easy
+ to choose one of the various objects defined in these packages as a starting
+ point.
+ The reference package is 
+\begin_inset Flex CharStyle:Pkg
+status collapsed
+
+\begin_layout Plain Layout
+sp
+\end_layout
+
+\end_inset
+
+.
+ However, this package defines S4 objects for points, lines, polygons and
+ gird referenced data and their manipulation.
+ However, they are far too complex and sophisticate for our purpose of using
+ AURELHY method.
+ The main package to reading such data and writting them to a file is the
+ 
+\begin_inset Flex CharStyle:Pkg
+status collapsed
+
+\begin_layout Plain Layout
+rgdal
+\end_layout
+
+\end_inset
+
+ package that interfaces function from 
+\series bold
+GDAL
+\series default
+.
+ This package has several dependencies and does not compile immediately
+ on all supported platforms, including many Linuxes.
+ So, again, we don't want to impose such a strong dependency in our 
+\begin_inset Flex CharStyle:Pkg
+status collapsed
+
+\begin_layout Plain Layout
+aurelhy
+\end_layout
+
+\end_inset
+
+ package (those who want to use these very specialized package can doso,
+ and won't get much problem to convert data into a suitable format for working
+ with 
+\begin_inset Flex CharStyle:Pkg
+status collapsed
+
+\begin_layout Plain Layout
+aurelhy
+\end_layout
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+We made the decision to define our own objects as being the most simplest
+ ones we can design to hold and manipulate conveniently required georeferenced
+ data, that is:
+\end_layout
+
+\begin_layout Itemize
+A 
+\begin_inset Flex CharStyle:Var
+status collapsed
+
+\begin_layout Plain Layout
+geomat
+\end_layout
+
+\end_inset
+
+ object that is a two-dimensional matrix of georeferenced points (either
+ reals, integers, or booleans).
+ The grid is considered as a regular grid made of squares.
+ This matches the Arc/Info ASCII grid format that approximates regularly
+ spaced sections defined by longitude-latitude frontiers expressed in degrees.
+ Thus, georeferencement is done in a very simplistic way by using a vector
+ of three numbers: 
+\begin_inset Flex CharStyle:Code
+status collapsed
+
+\begin_layout Plain Layout
+
+size
+\end_layout
+
+\end_inset
+
+ is the size of the border of a square in the grid, and 
+\begin_inset Flex CharStyle:Code
+status collapsed
+
+\begin_layout Plain Layout
+
+x
+\end_layout
+
+\end_inset
+
+ and 
+\begin_inset Flex CharStyle:Code
+status collapsed
+
+\begin_layout Plain Layout
+
+y
+\end_layout
+
+\end_inset
+
+ which are respectively the longitude and the latitude of the center of
+ the top-left square in the grid.
+ There are two derived objects: 
+\begin_inset Flex CharStyle:Var
+status collapsed
+
+\begin_layout Plain Layout
+dem
+\end_layout
+
+\end_inset
+
+ for digital elevation model, which is a 
+\begin_inset Flex CharStyle:Var
+status collapsed
+
+\begin_layout Plain Layout
+geomat
+\end_layout
+
+\end_inset
+
+ object containing integers, and a 
+\begin_inset Flex CharStyle:Var
+status collapsed
+
+\begin_layout Plain Layout
+geomask
+\end_layout
+
+\end_inset
+
+ object that also inherits from 
+\begin_inset Flex CharStyle:Var
+status collapsed
+
+\begin_layout Plain Layout
+geomat
+\end_layout
+
+\end_inset
+
+ but contains boolean data.
+\end_layout
+
+\begin_layout Itemize
+A 
+\begin_inset Flex CharStyle:Var
+status collapsed
+
+\begin_layout Plain Layout
+geopoints
+\end_layout
+
+\end_inset
+
+ object is a data frame of at least three variables.
+ The two variables 
+\begin_inset Flex CharStyle:Var
+status collapsed
+
+\begin_layout Plain Layout
+x
+\end_layout
+
+\end_inset
+
+ and 
+\begin_inset Flex CharStyle:Var
+status collapsed
+
+\begin_layout Plain Layout
+y
+\end_layout
+
+\end_inset
+
+ are the longitude and latitude coordinates of the points (same units as
+ for 
+\begin_inset Flex CharStyle:Var
+status collapsed
+
+\begin_layout Plain Layout
+geomat
+\end_layout
+
+\end_inset
+
+ objects).
+ They are always required.
+ Then, there is one or more variables defining measurements made at these
+ points.
+\end_layout
+
+\begin_layout Itemize
+In order to remain as simple as possible, and to avoid too much dependencies
+ on packages that could not be available or easily compilable on a given
+ platform, the 
+\begin_inset Flex CharStyle:Pkg
+status collapsed
+
+\begin_layout Plain Layout
+aurelhy
+\end_layout
+
+\end_inset
+
+ package also define routines to read and write those data in most commonly
+ used formats, that is, Arc/Info ASCII grid for 
+\begin_inset Flex CharStyle:Var
+status collapsed
+
+\begin_layout Plain Layout
+geomat
+\end_layout
+
+\end_inset
+
+ objects (
+\begin_inset Flex CharStyle:Code
+status collapsed
+
+\begin_layout Plain Layout
+
+read.geomat()
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset Flex CharStyle:Code
+status collapsed
+
+\begin_layout Plain Layout
+
+read.dem()
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset Flex CharStyle:Code
+status collapsed
+
+\begin_layout Plain Layout
+
+read.geomask()
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset Flex CharStyle:Code
+status collapsed
+
+\begin_layout Plain Layout
+
+write.geomat()
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset Flex CharStyle:Code
+status collapsed
+
+\begin_layout Plain Layout
+
+write.dem()
+\end_layout
+
+\end_inset
+
+ and 
+\begin_inset Flex CharStyle:Code
+status collapsed
+
+\begin_layout Plain Layout
+
+write.geomask()
+\end_layout
+
+\end_inset
+
+).
+ ESRI shapefiles to import/export 
+\begin_inset Flex CharStyle:Var
+status collapsed
+
+\begin_layout Plain Layout
+geopoints
+\end_layout
+
+\end_inset
+
+ objects uses the 
+\begin_inset Flex CharStyle:Pkg
+status collapsed
+
+\begin_layout Plain Layout
+shapefiles
+\end_layout
+
+\end_inset
+
+ package's routines.
+ Other importation/exportation methods are available from specialized package
+ available on CRAN: 
+\begin_inset Flex CharStyle:Pkg
+status collapsed
+
+\begin_layout Plain Layout
+rgdal
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset Flex CharStyle:Pkg
+status collapsed
+
+\begin_layout Plain Layout
+sp
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset Flex CharStyle:Pkg
+status collapsed
+
+\begin_layout Plain Layout
+RArcInfo
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset Flex CharStyle:Pkg
+status collapsed
+
+\begin_layout Plain Layout
+maptools
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset Flex CharStyle:Pkg
+status collapsed
+
+\begin_layout Plain Layout
+PBSmapping
+\end_layout
+
+\end_inset
+
+, or 
+\begin_inset Flex CharStyle:Pkg
+status collapsed
+
+\begin_layout Plain Layout
+raster
+\end_layout
+
+\end_inset
+
+.
+ Consult their respective documentation if you need different import/export
+ facilities for your own application.
+\end_layout
+
+\begin_layout R-Chunk
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+<<>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+# Test...
+\end_layout
+
+\begin_layout Plain Layout
+
+1+1
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Chapter
+...
+\end_layout
+
+\end_body
+\end_document

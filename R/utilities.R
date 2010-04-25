@@ -1,5 +1,6 @@
 # Given a point, calculate angle and distance from xy data
-polarcoords <- function (geomat, x, y, maxdist) {
+"polarcoords" <- function (geomat, x, y, maxdist)
+{
 	if (!missing(maxdist) && !is.null(maxdist)) {
 		# maxdist is in km, but x and y are in °
 		maxdeg <- maxdist / 111
@@ -25,8 +26,9 @@ polarcoords <- function (geomat, x, y, maxdist) {
 }
 
 # match.coords matches numerical data with a tol value
-# TODO: optimize this! Considering we have a grid!
-match.coords <- function (points, table, tol = 0.002) {
+# TODO: optimize this, considering we have a grid!
+"match.coords" <- function (points, table, tol = 0.002)
+{
 	# Look if point is in the tol vicinity of one point in table
 	match.one <- function (point, table, tol)
 		any(point[1] - tol < table$x && point[1] + tol > table$x &&
@@ -35,9 +37,9 @@ match.coords <- function (points, table, tol = 0.002) {
 }
 
 # A new coords method
-coords <- function (x, ...)
+"coords" <- function (x, ...)
 	UseMethod("coords")
 
 # New resample method
-resample <- function (x, ...)
+"resample" <- function (x, ...)
 	UseMethod("resample")
