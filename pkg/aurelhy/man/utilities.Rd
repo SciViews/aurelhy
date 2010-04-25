@@ -2,6 +2,8 @@
 \Rdversion{1.1}
 \alias{polarcoords}
 \alias{match.coords}
+\alias{coords}
+\alias{resample}
 
 \title{Various utilities functions for AURELHY}
 
@@ -18,14 +20,18 @@ resample(x, \dots)
 }
 
 \arguments{
-  \item{geomat}{ A geomat object}
-  \item{x}{  }
-  \item{y}{  }
-  \item{maxdist}{  }
-  \item{points}{  }
-  \item{table}{  }
-  \item{tol}{  }
-  \item{\dots}{  }
+  \item{geomat}{ A 'geomat' object }
+  \item{x}{ X coordinate of the reference point }
+  \item{y}{ Y coordinate of the reference point }
+  \item{maxdist}{ Maximum distance to consider. All points whose distance from
+    the reference point is larger are not considered in the calculation }
+  \item{points}{ A list or data frame with 'x' and 'y' coordinates of the
+    points to match to the reference points }
+  \item{table}{ A similar list or data frame with 'x' and 'y' coordinates of the
+    reference points to be matched }
+  \item{tol}{ The maximum tolerance in 'x' and 'y' units to consider points are
+    matching, that is, x +/- tol = x(ref) and y +/- tol = y(ref) }
+  \item{\dots}{ Further arguments passed to the method }
 }
 
 \details{
@@ -39,7 +45,7 @@ resample(x, \dots)
 }
 
 \value{
-  ...
+  ... TODO
 }
 
 \author{

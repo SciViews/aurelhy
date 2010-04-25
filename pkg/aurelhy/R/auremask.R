@@ -1,9 +1,9 @@
 # Construct an auremask object indicating regions to use for describing
 # landscape around points in the DEM for AURELHY interpolation
 # Note: dist are in km and angles in radians
-auremask <- function (type = "radial", dist = c(1, 6, 11, 16, 21, 26),
-	angles = 0:7 * pi/4 + 0.01, n = 11, keep.origin = FALSE) {
-	
+"auremask" <- function (type = "radial", dist = c(1, 6, 11, 16, 21, 26),
+angles = 0:7 * pi/4 + 0.01, n = 11, keep.origin = FALSE)
+{	
 	call <- match.call()
 	keep.origin <- isTRUE(keep.origin)
 	n <- round(n[1])
@@ -11,7 +11,7 @@ auremask <- function (type = "radial", dist = c(1, 6, 11, 16, 21, 26),
 	if (n %% 2 == 0) n <- n + 1
 	if (type == "rectangular") dist <- dist[1]	# Keep only first dist for rect
 		
-	radgrid <- function (dist, angles, keep.origin) {
+	"radgrid" <- function (dist, angles, keep.origin) {
 		grd <- data.frame(x = as.vector(dist %o% cos(angles)),
 				   y = as.vector(dist %o% sin(angles)))
 		# Do we have to add c(0, 0) to the list?
@@ -21,7 +21,7 @@ auremask <- function (type = "radial", dist = c(1, 6, 11, 16, 21, 26),
 		} else return(grd)
 	}
 	
-	rectgrid <- function (dist, n, keep.origin) {
+	"rectgrid" <- function (dist, n, keep.origin) {
 		# The distances to consider
 		dist <- (-(n-1)/2):((n-1)/2) * dist
 		grd <- data.frame(x = rep(dist, n), y = rep(dist, each = n))
@@ -50,7 +50,8 @@ auremask <- function (type = "radial", dist = c(1, 6, 11, 16, 21, 26),
 }
 
 # Print and plot methods for auremask objects
-print.auremask <- function (x, grid, ...) {
+"print.auremask" <- function (x, grid, ...)
+{
 	type <- attr(x, "type")
 	cat("An auremask object defining a", type, "grid\n")
 	orig.mes <-
@@ -100,9 +101,10 @@ print.auremask <- function (x, grid, ...) {
 	return(invisible(x))
 }
 
-# Plot a grid. If y is provided, it must be a geomat object and the function
+# Plot a mask. If y is provided, it must be a geomat object and the function
 # tries to match distances with grid points and displays the result in the graph
-plot.auremask <- function (x, y, ...) {
+"plot.auremask" <- function (x, y, ...)
+{
 	plot(x$x, x$y, xlab = "distance (km)", ylab = "distance (km)", asp = 1, type = "n")
 	type <- attr(x, "type")
 	if (type == "radial") {

@@ -1,5 +1,14 @@
 = aurelhy News
 
+== aurelhy version 0.1-1
+
+* There are now three grid objects: 'geomat', 'dem' and 'geomask'.
+
+* More plot type as plot(), contour(), image() and persp() for 'geomat' objects.
+
+* An example DEM object (Morocco with a grid of 1km x 1km roughly) is added.
+
+
 == aurelhy version 0.1-0
 
 This is the first version on R-forge.
