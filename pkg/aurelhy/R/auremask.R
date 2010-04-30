@@ -50,52 +50,54 @@ angles = 0:7 * pi/4 + 0.01, n = 11, keep.origin = FALSE)
 }
 
 # Print and plot methods for auremask objects
-"print.auremask" <- function (x, grid, ...)
+"print.auremask" <- function (x, geomat, ...)
 {
 	type <- attr(x, "type")
-	cat("An auremask object defining a", type, "grid\n")
+	cat("An auremask object defining a", type, "mask\n")
 	orig.mes <-
 		if (attr(x, "keep.origin")) "including origin" else "excluding origin"
-	cat("The grid has", nrow(x), "points", orig.mes, "\n")
+	cat("The mask uses", nrow(x), "points", orig.mes, "\n")
 	if (type == "radial") {
 		cat("Distance considered (km):\n")
 		print(attr(x, "dist"))
 		cat("... at angles (rad):\n")
-		print(attr(x, "angles"))
+		print(round(attr(x, "angles"), digits = 3))
 	} else {
-		cat("Grid has", attr(x, "n"), "distances spaced each by",
+		cat("The mask uses", attr(x, "n"), "distances spaced each by",
 			attr(x, "dist"), "km\n")
 	}
-	# If we provide a grid, look at how many points are in each sector
-	if (!missing(grid)) {
-		if (!inherits(grid, "geomat"))
-			stop("'grid' must be a geomat object")
+	# If we provide a geomat, look at how many points are in each sector
+	if (!missing(geomat)) {
+		if (!inherits(geomat, "geomat"))
+			stop("'geomat' must be a geomat object")
 		if (type == "radial") {
 			# TODO: extract this (duplicated from plot)
 			
-			# we choose a point in the middle of the grid
-			coords <- coords(grid)
-			x0 <- coords(grid, "x")[nrow(grid) %/% 2]
-			y0 <- coords(grid, "y")[ncol(grid) %/% 2]
+			# We choose a point in the middle of the grid
+			coords <- coords(geomat)
+			x0 <- coords(geomat, "x")[nrow(geomat) %/% 2]
+			y0 <- coords(geomat, "y")[ncol(geomat) %/% 2]
 			maxdist <- max(attr(x, "dist"))
-			maxdeg <- maxdist / 111
+			maxdeg <- maxdist / 110.9
 			m <- maxdeg * 1.05
 			xlim <- c(x0 - m, x0 + m)
 			ylim <- c(y0 - m, y0 + m)
 			# Take a window out of these data
-			geomat <- window(grid, xlim, ylim)
-			pt <- coords(geomat, "xy")
+			geomat2 <- window(geomat, xlim, ylim)
+			pt <- coords(geomat2, "xy")
 			# Get the different groups to be used in different colors
-			pc <- polarcoords(geomat, x0, y0, maxdist)
+			pc <- polar.coords(geomat2, x0, y0, maxdist)
 			# Make classes for angles and distances
 			dists <- attr(x, "dist")
 			angles <- attr(x, "angles")
 			pc$dist <- cut(pc$dist, breaks = dists,  labels = 1:(length(dists) - 1))
 			pc$angle <- cut(pc$angle, breaks = c(angles, 8),  labels = 1:length(angles))
+			cat("Total number of points used:", NROW(pc), "\n")
+			cat("with the following repartition per sector:\n")
 			# Print a contingency table
 			print(table(dist = pc$dist, angle = pc$angle))
 		} else {
-			cat("Nbr. of points per sector not implemented yet for rectangular grid\n")
+			warning("Nbr. of points per sector not implemented yet for rectangular masks")
 		}
 	}
 	return(invisible(x))
@@ -137,7 +139,7 @@ angles = 0:7 * pi/4 + 0.01, n = 11, keep.origin = FALSE)
 	y0 <- coords(y, "y")[ncol(y) %/% 2]
 	if (type == "radial") {
 		maxdist <- max(attr(x, "dist"))
-		maxdeg <- maxdist / 111
+		maxdeg <- maxdist / 110.9
 		m <- maxdeg * 1.05
 		xlim <- c(x0 - m, x0 + m)
 		ylim <- c(y0 - m, y0 + m)
@@ -145,14 +147,15 @@ angles = 0:7 * pi/4 + 0.01, n = 11, keep.origin = FALSE)
 		geomat <- window(y, xlim, ylim)
 		pt <- coords(geomat, "xy")
 		# Get the different groups to be used in different colors
-		pc <- polarcoords(geomat, x0, y0, maxdist)
+		pc <- polar.coords(geomat, x0, y0, maxdist)
 		# Make classes for angles and distances
 		pc$dist <- cut(pc$dist, breaks = c(0, dists),  labels = 0:(length(dists) - 1))
 		pc$angle <- cut(pc$angle, breaks = c(angles, 8),  labels = 1:length(angles))
 		# Use four different colors
 		cols <- (2 * as.numeric(pc$dist) %% 2) + (as.numeric(pc$angle) %% 2) + 1
-		points((pt$x - x0) * 111, (pt$y - y0) * 111, pch = "+", cex = 0.5, col = cols)
+		points((pt$x - x0) * 110.9, (pt$y - y0) * 110.9, pch = "+", cex = 0.5, col = cols)
 	} else { # Rectangular data
 		# TODO...
+		warning("Plot of points per sector not implemented yet for rectangular masks")
 	}
 }

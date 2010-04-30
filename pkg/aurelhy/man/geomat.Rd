@@ -1,13 +1,13 @@
 \name{geomat}
 \Rdversion{1.1}
 \alias{geomat}
-\alias{dem}
+\alias{geotm}
 \alias{geomask}
 \alias{read.geomat}
-\alias{read.dem}
+\alias{read.geotm}
 \alias{read.geomask}
 \alias{write.geomat}
-\alias{write.dem}
+\alias{write.geotm}
 \alias{write.geomask}
 \alias{print.geomat}
 \alias{coords.geomat}
@@ -18,13 +18,13 @@
 \alias{contour.geomat}
 \alias{persp.geomat}
 
-\title{A geomat, dem or geomask object for AURELHY}
+\title{A geomat, geotm or geomask object for AURELHY}
 
 \description{
   Geomat are matrices of geographically referenced data. These are essentially
   georeferenced rectangular, regular grids of points. Data can be numeric
-  (reals), integer, or logical (booleans). Objects 'dem' are special 'geomat'
-  matrices containing always integers and representing digital elevation maps.
+  (reals), integer, or logical (booleans). Objects 'geotm' are special 'geomat'
+  matrices containing always integers and representing terrain models.
   Objects 'geomask' are also special 'geomat' that only contain logical values.
   They are mainly used to define a mask on top of a grid (which points to
   consider and which ones to eliminate from a calculation).
@@ -33,18 +33,18 @@
 \usage{
 geomat(x, size, xcenter, ycenter, coords = c(size = size, x = xcenter,
     y = ycenter), datatype = c("numeric", "integer", "logical"), nodata = NA)
-dem(x, size, xcenter, ycenter, coords = c(size = size, x = xcenter,
+geotm(x, size, xcenter, ycenter, coords = c(size = size, x = xcenter,
     y = ycenter))
 geomask(x, size, xcenter, ycenter, coords = c(size = size, x = xcenter,
     y = ycenter))
 
 read.geomat(file, type = "ascii", datatype = c("numeric", "integer", "logical"),
     \dots)
-read.dem(file, type = "ascii", \dots)
+read.geotm(file, type = "ascii", \dots)
 read.geomask(file, type = "ascii", threshold = 0, \dots)
 
 write.geomat(x, file, type = "ascii", integers = FALSE, nodata = -9999, \dots)
-write.dem(x, file, type = "ascii", nodata = -9999, \dots)
+write.geotm(x, file, type = "ascii", nodata = -9999, \dots)
 write.geomask(x, file, type = "ascii", nodata = -9999, \dots)
 
 \method{print}{geomat}(x, \dots)
@@ -66,7 +66,7 @@ write.geomask(x, file, type = "ascii", nodata = -9999, \dots)
 }
 
 \arguments{
-  \item{x}{ An object (a matrix or data frame for \code{geomat()}, \code{dem()},
+  \item{x}{ An object (a matrix or data frame for \code{geomat()}, \code{geotm()},
     or \code{geomask()}, or a 'geomat' object for the other functions) }
   \item{size}{ The size of a grid square (in decimal degrees) }
   \item{xcenter}{ The position of the center of the top-left square of the grid,
@@ -140,11 +140,11 @@ write.geomask(x, file, type = "ascii", nodata = -9999, \dots)
 }
 
 \details{
-  \code{geomat()} ...
+  \code{geomat()}, etc.
 }
 
 \value{
-  A 'geomat' object ... Print => one latitudinal degree is approximately 110.9km
+  A 'geomat' object, etc. Print => one latitudinal degree is approximately 110.9km
 }
 
 \author{
@@ -176,12 +176,32 @@ image(gm)
 contour(gm)
 persp(gm, expand = 100)
 
-# Now load real data (Morocco digital elevation model)
+# Now load real data (Morocco terrain model)
 data(morocco)
 morocco
 image(morocco)
 contour(morocco, add = TRUE)
 grid()
+
+# The mask of points inside Morocco territory was obtained like that:
+#library(splancs)
+#data(mbord)
+#inm <- inout(coords(morocco, "xy"), mbord[[1]])
+#mmask <- morocco
+#mmask[inm] <- 1
+#mmask[!inm] <- 0
+#mmask[is.na(morocco)] <- NA
+#mmask <- geomask(mmask, coords = coords(mmask))
+
+data(mmask)
+image(mmask)
+
+# Get Morocco frontiers from a shapefile
+# To read it from an ESRI shape
+#mbord <- read.geoshapes("morocco_border.shp")
+
+data(mbord)
+lines(mbord, col = "red")
 }
 
 \keyword{utilities}

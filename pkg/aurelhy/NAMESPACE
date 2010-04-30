@@ -2,18 +2,21 @@ import(stats, graphics)
 
 export(auremask,
        coords,
-	   dem,
 	   geomask,
 	   geomat,
+	   geoshapes,
+	   geotm,
 	   match.coords,
-       polarcoords,
-	   read.dem,
+       polar.coords,
 	   read.geomask,
-	   read.geomat,
+	   read.geomat,	   
+	   read.geoshapes,
+	   read.geotm,
 	   resample,
-	   write.dem,
 	   write.geomask,
-	   write.geomat)
+	   write.geomat,
+	   write.geoshapes,
+	   write.geotm)
 
 S3method(plot, auremask)
 S3method(print, auremask)
@@ -26,3 +29,9 @@ S3method(plot, geomat)
 S3method(print, geomat)
 S3method(resample, geomat)
 S3method(window, geomat)
+
+S3method(image, geomask)
+
+S3method(print, geoshapes)
+S3method(lines, geoshapes)
+S3method(points, geoshapes)

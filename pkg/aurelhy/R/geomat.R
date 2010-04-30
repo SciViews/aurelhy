@@ -1,10 +1,8 @@
 # We define these objects:
 # * geomat is a matrix which represents a regular grid with info about its
 #   geographical localization (coordinate of top-left point and cell size)
-# * dem is a geomat object that contains integers and is used for terrain
+# * geotm is a geomat object that contains integers and is used for terrain
 #   model data (digital elevation map)
-# * aspect is a geomat object that contains aspect data (orientation of the
-#   slope as N, NE, E, SE, S, SO, O or NO) (TODO)
 
 # Create a geomat object from a matrix of numbers (reals, integers, or logicals)
 "geomat" <- function (x, size, xcenter, ycenter,
@@ -31,16 +29,24 @@ datatype = c("numeric", "integer", "logical"), nodata = NA)
 	return(res)
 }
 
-# Create a dem object, which is essentially inheriting from a 'geomat' object
+# Create a geotm object, which is essentially inheriting from a 'geomat' object
 # but contains integer values
-"dem" <- function (x, size, xcenter, ycenter,
+"geotm" <- function (x, size, xcenter, ycenter,
 coords = c(size = size, x = xcenter, y = ycenter))
-	geomat(x = x, coords = coords, datatype = "integer")
+{
+	res <- geomat(x = x, coords = coords, datatype = "integer")
+	class(res) <- c("geotm", class(res))
+	return(res)
+}
 
 # Create a geomask object, which is a geomat containing boolean (logical) data
 "geomask" <- function (x, size, xcenter, ycenter,
 coords = c(size = size, x = xcenter, y = ycenter))
-	geomat(x = x, coords = coords, datatype = "logical")
+{
+	res <- geomat(x = x, coords = coords, datatype = "logical")
+	class(res) <- c("geomask", class(res))
+	return(res)
+}
 
 # Read a geomat object from an ARC/INFO ASCII GRID format (.asc, or .E00)
 "read.geomat" <- function (file, type = "ascii",
@@ -106,13 +112,13 @@ datatype = c("numeric", "integer", "logical"), ...)
 }
 
 # Read in the terrain model in ARC/INFO ASCII GRID format (.asc)
-# into a dem object (digital elevation model)
-"read.dem" <- function (file, type = "ascii", ...)
+# into a geotm object (digital elevation model)
+"read.geotm" <- function (file, type = "ascii", ...)
 {
 	# Delegate to read.geomat()
 	res <- read.geomat(file = file, type = type, datatype = "integer", ...)
 	# Only the class is different
-	class(res) <- c("dem", class(res))
+	class(res) <- c("geotm", class(res))
 	return(res)
 }
 
@@ -182,9 +188,9 @@ nodata = -9999, ...)
 	return(invisible(TRUE))
 }
 
-# Write a dem object into a different format in file
+# Write a geotm object into a different format in file
 # This is essentially the same process as write.geomat()
-"write.dem" <- function (x, file, type = "ascii", nodata = -9999, ...)
+"write.geotm" <- function (x, file, type = "ascii", nodata = -9999, ...)
 	write.geomat(x = x, file = file, type = type, integers = TRUE, nodata = nodata, ...)
 
 # Write a geomask object into a different format in file
@@ -220,7 +226,8 @@ nodata = -9999, ...)
 	nc <- ncol(x)
 	nr <- nrow(x)
 	size <- coords["size"]
-	cat("A geomat object with a grid of", nr, "x", nc, "\n")
+	cl <- class(x)[1]
+	cat("A", cl, "object with a grid of", nr, "x", nc, "\n")
 	cat("The cell size is ", size, "\u00b0, that is approx. ",
 		round(size * 110900), " m in lat.\n", sep = "")
 	cat("The grid spans from ", coords["x1"], "\u00b0 to ", coords["x2"],
@@ -232,7 +239,7 @@ nodata = -9999, ...)
 }
 
 # Resample method for geomat objects
-"resample.geomat" <- function (x, x0 = 1, y0 = 1, nx = 100, step = NULL, ...)
+"resample.geomat" <- function (x, x0 = 1, y0 = 1, step = NULL, nx = 100, ny = nx, strict = FALSE, ...)
 {
 	nr <- nrow(x)
 	nc <- ncol(x)
@@ -256,6 +263,12 @@ nodata = -9999, ...)
 		stop("'step' cannot be < 1")
 	
 	# Construct the resampling indexes
+# To force nx and ny:
+#> x0 = 12
+#> nx = 50
+#> step = 3
+#> xmax = step * (nx - 1) + x0
+#> seq(x0, xmax, by = step)
 	rex <- seq(from = x0, to = nr, by = step)
 	rey <- seq(from = y0, to = nc, by = step)
 	size <- coords["size"] * step
@@ -368,5 +381,24 @@ expand = 1, shade = 0.75, border = NA, box = TRUE, ...)
 	persp(coords(x, "x"), coords(x, "y"), x/1000, theta = theta, phi = phi,
 		scale = FALSE, expand = expand, shade = shade, border = border,
 		box = box, col = col, xlab = xlab, ylab = ylab, ...)
+	return(invisible(x))	
+}
+
+"image.geomask" <- function (x, max.xgrid = 500, col = c("#ffffff80", "#88888800"),
+add = TRUE, xlab = if (add) "" else "Longitude",
+ylab = if (add) "" else "Latitude", asp = 1, ...)
+{
+	# Avoid trying to plot too large data by resampling in the grid in this case
+	if (nrow(x) > max.xgrid)
+		x <- resample(x, nx = max.xgrid)
+	# Plot the data
+	image(coords(x, "x"), coords(x, "y"), x, col = col, add = add,
+		xlab = xlab, ylab = ylab, asp = asp, ...)
+	
+	# Draw the longitude and latitude axes at top and right too
+	if (!isTRUE(add)) {
+		axis(3)
+		axis(4)
+	}
 	return(invisible(x))	
 }

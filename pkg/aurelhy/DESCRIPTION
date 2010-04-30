@@ -1,10 +1,10 @@
 Package: aurelhy
 Type: Package
 Title: Hydrometeorological interpolation
-Depends: R (>= 2.10.0), stats, graphics
+Depends: R (>= 2.10.0), stats, graphics, shapefiles
 Description: Hydrometeorological interpolation using AURELHY method
-Version: 0.1-1
-Date: 2010-04-25
+Version: 0.1-2
+Date: 2010-04-26
 Author: Philippe Grosjean
 Maintainer: Philippe Grosjean <phgrosjean@sciviews.org>
 License: GPL (>= 2)
