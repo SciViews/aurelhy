@@ -1,5 +1,18 @@
 = aurelhy News
 
+== aurelhy version 0.1-2
+
+* Addition of 'geoshapes' objects + read/write ESRI shapefiles and print(),
+  lines() and points() methods for these objects
+
+* Addition of a geoshapes example object (Morocco borders in mbord)
+
+* Addition of an example geomask object (Morocco territory mask in mmask)
+
+* Objects 'dem' are renamed 'geotm' for "georeferenced terrain model" for a more
+  homogene naming in comparison with the other geo* objects
+
+
 == aurelhy version 0.1-1
 
 * There are now three grid objects: 'geomat', 'dem' and 'geomask'.

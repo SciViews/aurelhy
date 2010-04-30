@@ -4,10 +4,10 @@
 \alias{print.auremask}
 \alias{plot.auremask}
 
-\title{Create and manipulate a mask for terrain profile data used in AURELHY}
+\title{Create and manipulate a mask for landscape descriptors used in AURELHY}
 
 \description{
-  An AURELHY mask (auremask object) specifies the regions relative to the point
+  An AURELHY mask ('auremask' object) specifies the regions relative to the point
   that define the various variables describing the landscape.
 }
 
@@ -15,7 +15,7 @@
 auremask(type = "radial", dist = c(1, 6, 11, 16, 21, 26),
     angles = 0:7 * pi/4 + 0.01, n = 11, keep.origin = FALSE)
 
-\method{print}{auremask}(x, grid, \dots)
+\method{print}{auremask}(x, geomat, \dots)
 \method{plot}{auremask}(x, y, \dots)
 }
 
@@ -27,10 +27,10 @@ auremask(type = "radial", dist = c(1, 6, 11, 16, 21, 26),
     \code{"rectangular"} mask }
   \item{angles}{ A vector of angles in radians to use to construct a
     \code{"radial"} mask. This argument is ignored for \code{"rectangular"}
-    mask. Avoid to use \"exact\" angles, like 0 or pi/4, because you will have
-    points going into one or the other sector of your mask, depending on
-    rounding of the numbers! A slight shift angle (0.01, by default) avoids this
-    unstability }
+    mask. Avoid to use angles parallels to the grid, like 0 or pi/4, because you
+    will have points going into one or the other sector of your mask, depending
+    on rounding of the numbers in the floating-point calculations! A slight
+    shift angle (0.01, by default) avoids this unstability }
   \item{n}{ The number of grid points in latitude and longitude to use for a
     \code{"rectangular"} mask. For instance, if \code{n = 11}, the mask will be
     made of 11*11 = 121 points (minus one if \code{keep.origin is FALSE}). This
@@ -39,10 +39,10 @@ auremask(type = "radial", dist = c(1, 6, 11, 16, 21, 26),
     one point of the grid, or not (by default, not, as in the original
     implementation of the AURELHY method) }
   \item{x}{ An 'auremask' object }
-  \item{grid}{ A reference grid, as a 'geomat' object against which the mask is
+  \item{geomat}{ A reference grid, as a 'geomat' object against which the mask is
     tested (print or plot the number of points that are located in each sector
     of the mask)}
-  \item{y}{ Same as \code{grid} }
+  \item{y}{ Same as \code{geomat} }
   \item{\dots}{ further arguments passed to the function }
 }
 
@@ -52,23 +52,26 @@ auremask(type = "radial", dist = c(1, 6, 11, 16, 21, 26),
 }
 
 \value{
-  An 'auremask' object with all information required to mask a DEM for creating
-  landscape variables required by the AURELHY method.
+  An 'auremask' object with all information required to mask a 'geotm' object
+  (terrain model) for creating landscape variables required by the AURELHY
+  method.
 }
 
 \author{
   Philippe Grosjean <phgrosjean@sciviews.org>
 }
 
-\seealso{ \code{\link{polarcoords}}, \code{\link{geomat}} }
+\seealso{ \code{\link{polar.coords}}, \code{\link{geomat}} }
 
 \examples{
 # Default mask
-ag <- auremask()
-ag
+am <- auremask()
+am
 # Get an example terrain model and apply the mask on it
 data(morocco)
-plot(ag, morocco)
+plot(am, morocco)
+# Further statistics are displayed with print() if a grid is provided too
+print(am, morocco)
 }
 
 \keyword{utilities}

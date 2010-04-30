@@ -5,15 +5,15 @@
 \title{ A digital elevation model with a grid of roughly 1km x 1km of Morocco }
 \usage{data(morocco)}
 \description{
-The \code{morocco} dataset is a 'dem' object.
+The \code{morocco} dataset is a 'geotm' object (georeferenced terrain model).
 }
 \format{
-  This 'dem' object contains a grid of 1986x1866 elevetion points in m. 
+  This 'geotm' object contains a grid of 1986x1866 elevation points (in m). 
 }
 \source{
 TODO: add source of these data.
 }
 
-\seealso{ \code{\link{dem}} }
+\seealso{ \code{\link{geotm}}, \code{\link{mbord}} , \code{\link{mmask}}}
 
 \keyword{datasets}
