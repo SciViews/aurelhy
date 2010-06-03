@@ -1,8 +1,10 @@
 # Create a geoshapes object, either for a x,y data.frame, or from a list of
 # such data frames
-"geoshapes" <- function (x, name = "1")
+"geoshapes" <- function (x, name = "1", dbf = NULL)
 {
 	if (inherits(x, "geoshapes")) return(x)	# Nothing to do
+	if (!is.null(dbf) || !inherits(dbf, "data.frame"))
+		stop("'dbf' must ba a data frame or NULL")
 	if (inherits(x, "data.frame") && c("x", "y") %in% names(x)) {
 		# Convert into a list
 		res <- list()
@@ -17,26 +19,35 @@
 			stop("'x' must be a list of data frames with only columns 'x' and 'y'")
 		res <- x
  	}
+	# Add the dbf attribute
+	attr(res, "dbf") <- dbf
 	# Change class
 	class(res) <- c("geoshapes", "list")
 	return(res)
 }
 
 # Read a simple ESRI shapes file
-"read.geoshapes" <- function (shpFile)
+"read.geoshapes" <- function (shpFile, dbf = TRUE)
 {
-	res <- convert.to.simple(read.shp(shpFile))
+	shapes <- convert.to.simple(read.shp(shpFile))
 	# Rename into 'id', 'x', and 'y'
-	names(res) <- tolower(names(res))
+	colnames(shapes) <- tolower(colnames(shapes))
 	# Split into a list of shapes
-	res <- by(res, res[, 1], function(x) x[, -1])
+	res <- by(shapes, shapes[, 1], function(x) x[, -1])
 	class(res) <- c("geoshapes", "list")
+	attr(res, "shapes") <- shapes
 	attr(res, "call") <- NULL # Delete this attribute
+	# Do we read the dbf file too?
+	dbfFile <- sub("[.][sS][hH][pP]$", ".dbf", shpFile)
+	if (isTRUE(dbf) && file.exists(dbfFile)) {
+		dbf <- read.dbf(dbfFile)$dbf
+		attr(res, "dbf") <- dbf
+	}
 	return(res)
 }
 
 "write.geoshapes" <- function (x, file,
-type = c("polygon", "point", "polyLine"), ...)
+type = c("polygon", "point", "polyLine"), dbf = TRUE, arcgis = FALSE, ...)
 {
 	type <- match.arg(type)
 	type <- switch(type,
@@ -46,22 +57,20 @@ type = c("polygon", "point", "polyLine"), ...)
 		stop("Unrecognized type"))
 	if (!inherits(x, "geoshapes"))
 		stop("'x' must be a 'geoshapes' object")
-	
-	# We need to add a first column with index to each shape
-	# and rename columns as 'Id', 'X', and 'Y'
-	rework.shapes <- function (shape, item)
-		data.frame(Id = rep(item, ncol(shape)), X = shape$x, Y = shape$y)
-	
-	items <- names(x)
-	if (length(items) == 0) stop("No shapes found in 'x'")
-	df <- data.frame(Id = character(0), X = numeric(0), Y = numeric(0))
-	for (i in 1:length(items))
-		df <- rbind(df, rework.shapes(x[[items[i]]], items[i]))	
+
+	df <- attr(x, "shapes")
+	colnames(df) <- c("Id", "X", "Y")
 	
 	# Convert to shapefile data
-	res <- convert.to.shapefile(df, data.frame(index = items), "index", type)
-	# and write in into an ESRI shapefile
-	write.shapefile(res, file, arcgis = TRUE)
+	res <- convert.to.shapefile(as.data.frame(df),
+		data.frame(index = unique(df[, "Id"])), "index", type)
+	# Do we write also the associated dbf file
+	dbf <- attr(x, "dbf")
+	if (!is.null(dbf)) res$dbf$dbf <- dbf
+	
+	# write in into an ESRI shapefile
+	write.shapefile(res, file, arcgis = arcgis)
+
 	return(invisible(res))
 }
 
@@ -74,6 +83,11 @@ type = c("polygon", "point", "polyLine"), ...)
 		cat("A 'geoshapes' object containing", L, "shapes:\n")
 		print(names(x))
 	}
+	# Is there a dbf attribute?
+	dbf <- attr(x, "dbf")
+	if (!is.null(dbf) && !is.null(names(dbf)))
+		cat("Associated data (first few lines):\n")
+		print(head(dbf, n = 5))
 	return(invisible(x))
 }
 
@@ -82,6 +96,7 @@ type = c("polygon", "point", "polyLine"), ...)
 {
 	# Get the shape
 	shp <- x[[which]]
+	names(shp) <- c("x", "y")	# Sometimes, it is 'X' and 'Y'!
 	# Draw a line for the shape, but we must not draw lines connecting
 	# several separate paths. They are recognizable, because we go back to
 	# the same coordinates more than once
@@ -91,5 +106,9 @@ type = c("polygon", "point", "polyLine"), ...)
 }
 
 # Add points to a graph
-"points.geoshapes" <- function (x, which = 1, ...)
-	lines(x, which, type = "p", ...)
+"points.geoshapes" <- function (x, which = "all", ...) {
+	pts <- attr(x, "shapes")
+	# Get the points selected by which, if not all
+	if (which != "all")  pts <- pts[pts$id %in% which, ]
+	points(pts$x, pts$y, ...)
+}

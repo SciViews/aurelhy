@@ -107,7 +107,7 @@ angles = 0:7 * pi/4 + 0.01, n = 11, keep.origin = FALSE)
 # tries to match distances with grid points and displays the result in the graph
 "plot.auremask" <- function (x, y, ...)
 {
-	plot(x$x, x$y, xlab = "distance (km)", ylab = "distance (km)", asp = 1, type = "n")
+	plot(x$x, x$y, xlab = "distance (km)", ylab = "distance (km)", asp = 1, type = "n", ...)
 	type <- attr(x, "type")
 	if (type == "radial") {
 		radline <- function (angle, max) {

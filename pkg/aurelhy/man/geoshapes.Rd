@@ -16,13 +16,14 @@
 }
 
 \usage{
-geoshapes(x, name = "1")
-read.geoshapes(shpFile)
-write.geoshapes(x, file, type = c("polygon", "point", "polyLine"), \dots)
+geoshapes(x, name = "1", dbf = NULL)
+read.geoshapes(shpFile, dbf = TRUE)
+write.geoshapes(x, file, type = c("polygon", "point", "polyLine"),
+    dbf = TRUE, arcgis = FALSE,\dots)
 
 \method{print}{geoshapes}(x, \dots)
 \method{lines}{geoshapes}(x, which = 1, \dots)
-\method{points}{geoshapes}(x, which = 1, \dots)
+\method{points}{geoshapes}(x, which = "all", \dots)
 }
 
 \arguments{
@@ -31,10 +32,14 @@ write.geoshapes(x, file, type = c("polygon", "point", "polyLine"), \dots)
     \code{geoshapes()}; a 'geoshapes' object for the other functions }
   \item{name}{ The name to use for the shape in case a data frame is passed to
     \code{geoshapes()}. Ignored if a list is passed to the function }
+  \item{dbf}{ A data frame to record as 'dbf' attribute for \code{geoshapes}, or
+    a flag indicating to read or write DBF data too, if the file exists }
   \item{shpFile}{ The path to a .shp file (ESRI shape file) to import }
   \item{file}{ The path to an ESRI file where to write data, without extension.
     Three files are created, with respective extensions .shp, .shx, and .dbf }
   \item{type}{ The type of shape to write in the ESRI shape file }
+  \item{arcgis}{ If \code{TRUE}, the header of the DBF table is made compatible
+    with ArcGIS, that is, dot (.) is replaced by underline (_) }
   \item{which}{ The index of the shape to use, or its name }
   \item{\dots}{ Further arguments passed to the functions (not used yet) }
 }

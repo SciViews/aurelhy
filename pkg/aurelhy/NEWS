@@ -1,5 +1,21 @@
 = aurelhy News
 
+== aurelhy version 0.1-3
+
+* read.geomat(): the file is now read silently
+
+* Bug correction is write.geomat(): the matrix was transposed
+
+* read.geoshapes(): the function failed when coordinates where named 'X' and 'Y'
+  instead of 'x' and 'y'. Also adde the possibility to read the DBF file at
+  the same time ('dbf' attribute of the object)
+  
+* geoshapes objects now have a "dbf" attribute that holds the table of the
+  associated DBF file
+
+* It is now possible to supply custom attributes in plot.auremask()
+
+
 == aurelhy version 0.1-2
 
 * Addition of 'geoshapes' objects + read/write ESRI shapefiles and print(),
