@@ -101,9 +101,9 @@ datatype = c("numeric", "integer", "logical"), ...)
 	
 	# Read the data in (possibly using integers to save memory space)
 	res <- switch(datatype,
-		numeric = scan(file, numeric(0), skip = nskip),
-		integer = scan(file, integer(0), skip = nskip),
-		logical = scan(file, integer(0), skip = nskip), # Only numbers supported!
+		numeric = scan(file, numeric(0), skip = nskip, quiet = TRUE),
+		integer = scan(file, integer(0), skip = nskip, quiet = TRUE),
+		logical = scan(file, integer(0), skip = nskip, quiet = TRUE), # Only numbers supported!
 		stop("Unrecognized 'datatype'"))
 	res <- matrix(res, ncol = nc, nrow = nr)
 	res <- res[, ncol(res):1]
@@ -166,8 +166,8 @@ nodata = -9999, ...)
 	if (!is.numeric(coords) || is.null(names(coords)) || !c("size", "x", "y") %in% names(coords))
 		stop("'x' coords seems to be corrupted (must contain 'size', 'x', and 'y')")
 		
-	cat("ncols ", ncol(x), "\n", file = file)
-	cat("nrows ", nrow(x), "\n", file = file, append = TRUE)
+	cat("ncols ", nrow(x), "\n", file = file)
+	cat("nrows ", ncol(x), "\n", file = file, append = TRUE)
 	cat("xllcorner ", coords["x"] - coords["size"]/2, "\n", file = file, append = TRUE)
 	cat("yllcorner ", coords["y"] - coords["size"]/2, "\n", file = file, append = TRUE)
 	cat("cellsize ", coords["size"], "\n", file = file, append = TRUE)
@@ -175,15 +175,16 @@ nodata = -9999, ...)
 	
 	# Convert data into numeric or integer
 	if (isTRUE(integers)) {
-		x <- matrix(as.integer(nodata), ncol = ncol(x))
+		x <- matrix(as.integer(x), ncol = ncol(x))
 	} else {
-		x <- matrix(as.numeric(nodata), ncol = ncol(x))
+		x <- matrix(as.numeric(x), ncol = ncol(x))
 	}
 	# Replace any missing value in the matrix with nodata
 	x[is.na(x)] <- nodata
-	x <- x[, ncol(x):1]
+	x <- t(x[, ncol(x):1])
 	# Write this matrix into the file
-	apply(x, 1, function (x) cat(paste(x, collapse = " "), "\n", sep = ""))
+	apply(x, 1, function (x) cat(paste(x, collapse = " "), "\n", sep = "",
+		file = file, append = TRUE))
 	# Return TRUE invisibly
 	return(invisible(TRUE))
 }
