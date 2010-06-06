@@ -1,5 +1,17 @@
 = aurelhy News
 
+== aurelhy version 0.1-4
+
+* morocco and mmask datasets are enlarged a little bit to have enough border
+  data to calculate landscape descriptors as far as 26km away from extreme
+  points inside the Morocco territory
+  
+* mseadist dataset is added
+  
+* the aurelhy() object is added. It is the main object to perform the AURELHY
+  interpolation, which is done using its predict() method
+
+
 == aurelhy version 0.1-3
 
 * read.geomat(): the file is now read silently

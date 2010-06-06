@@ -264,15 +264,15 @@ nodata = -9999, ...)
 		stop("'step' cannot be < 1")
 	
 	# Construct the resampling indexes
-# To force nx and ny:
-#> x0 = 12
-#> nx = 50
-#> step = 3
-#> xmax = step * (nx - 1) + x0
-#> seq(x0, xmax, by = step)
 	rex <- seq(from = x0, to = nr, by = step)
 	rey <- seq(from = y0, to = nc, by = step)
 	size <- coords["size"] * step
+	
+	# If we decide to get strict, make sure to respect nx and ny!
+	if (isTRUE(strict)) {
+		if (length(rex) > nx) rex <- rex[1:nx]
+		if (length(rey) > ny) rey <- rey[1:ny]
+	}
 	
 	# Construct the new grid
 	attrib <- attributes(x)
