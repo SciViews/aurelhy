@@ -1,6 +1,7 @@
 import(stats, graphics)
 
-export(auremask,
+export(aurelhy,
+	   auremask,
        coords,
 	   geomask,
 	   geomat,
@@ -17,6 +18,13 @@ export(auremask,
 	   write.geomat,
 	   write.geoshapes,
 	   write.geotm)
+
+S3method(plot, aurelhy)
+S3method(points, aurelhy)
+S3method(predict, aurelhy)
+S3method(print, aurelhy)
+S3method(summary, aurelhy)
+S3method(update, aurelhy)
 
 S3method(plot, auremask)
 S3method(print, auremask)

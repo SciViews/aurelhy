@@ -9,7 +9,9 @@
 * mseadist dataset is added
   
 * the aurelhy() object is added. It is the main object to perform the AURELHY
-  interpolation, which is done using its predict() method
+  interpolation, which is done using its predict() method. Methods print(),
+  summary(), plot(), points() are also available. Methods update() and predict()
+  are not implemented yet in this version.
 
 
 == aurelhy version 0.1-3

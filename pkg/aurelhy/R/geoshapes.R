@@ -3,8 +3,8 @@
 "geoshapes" <- function (x, name = "1", dbf = NULL)
 {
 	if (inherits(x, "geoshapes")) return(x)	# Nothing to do
-	if (!is.null(dbf) || !inherits(dbf, "data.frame"))
-		stop("'dbf' must ba a data frame or NULL")
+	if (!is.null(dbf) && !inherits(dbf, "data.frame"))
+		stop("'dbf' must be a data frame or NULL")
 	if (inherits(x, "data.frame") && c("x", "y") %in% names(x)) {
 		# Convert into a list
 		res <- list()
@@ -85,9 +85,10 @@ type = c("polygon", "point", "polyLine"), dbf = TRUE, arcgis = FALSE, ...)
 	}
 	# Is there a dbf attribute?
 	dbf <- attr(x, "dbf")
-	if (!is.null(dbf) && !is.null(names(dbf)))
+	if (!is.null(dbf) && !is.null(names(dbf))) {
 		cat("Associated data (first few lines):\n")
 		print(head(dbf, n = 5))
+	}
 	return(invisible(x))
 }
 
