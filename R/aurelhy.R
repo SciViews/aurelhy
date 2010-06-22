@@ -11,11 +11,12 @@
 #    kriging? ...). One can also convert the result into a geomat object, using
 #    the as.geomat() function
 "aurelhy" <- function (geotm, geomask, auremask = auremask(), x0 = 30, y0 = 30,
-step = 12, nbr.pc = 10, add.vars = NULL, scale = FALSE)
+step = 12, nbr.pc = 10, scale = FALSE, model = data ~ ., add.vars = NULL,
+var.name = NULL)
 {	
 	call <- match.call()
 	
-	# Check that geotm and geomask are correcto objects and are on a grid of same size
+	# Check that geotm and geomask are correct objects and are on a grid of same size
 	if (!inherits(geotm, "geotm"))
 		stop("geotm must be a 'geotm' object")
 	if (!inherits(geomask, "geomask"))
@@ -76,17 +77,42 @@ step = 12, nbr.pc = 10, add.vars = NULL, scale = FALSE)
 	Xsize <- nrow(tm2)
 	Ysize <- ncol(tm2)
 	# Add 'z', elevation at these points
-	# TODO: shouldn't we average elevation around these points???
+	# Shouldn't we average elevation around these points???
 	res$z <- as.vector(tm2)
+	
+	# Before further calculating, check that add.vars matches nrow(res)
+	if (!is.null(add.vars)) {
+		# add.vars can be a geomat => check dimensions
+		#and transform into a column data frame
+		if (inherits(add.vars, "geomat")) {
+			if (dim(add.vars) != dim(tm2) ||
+				!isTRUE(all.equal(coords(add.vars), coords(tm2),
+					tolerance = coords(tm2)["size"] / 2))) {
+				cat("The interpolation grid is:\n")
+				print(tm2)
+				flush.console()
+				stop("You must use same grid for 'add.vars' as the interpolation grid")
+			}
+			add.vars <- as.vector(add.vars)
+		}
+		add.vars <- as.data.frame(add.vars)
+		if (nrow(add.vars) != nrow(res))
+			stop("Data provided in 'add.vars' must be measured at same grid points as interpolation")
+		if (!is.null(var.name)) {
+			if (length(var.name) != 1)
+				stop("var.name must be of length 1, when add.vars is a 'geomat' object")
+			names(add.vars) <- var.name	
+		}
+	}
 	
 	# Replace NAs in geotm by 0's (supposed to be sea level)
 	geotm[is.na(geotm)] <- 0
 	
-	# add '.mask.' to the table
+	# add 'mask' to the table
 	mask <- as.vector(mask)
 	res$mask <- mask
 	# res2 contains only points we keep
-	res2 <- res[res$mask, ]
+	res2 <- res[mask, ]
 
 	# We choose a point in the middle of the original geotm object
 	m <- band * size * 1.01
@@ -146,41 +172,80 @@ step = 12, nbr.pc = 10, add.vars = NULL, scale = FALSE)
 	pca <- prcomp(land, center = TRUE, scale. = scale)
 	# Drop mask from res2
 	res2$mask <- NULL
-	# Add variables, after filtering them with mask (if their number match res)
-	if (!is.null(add.vars)) {
-		# TODO: add variables...
-	}
 	
 	# Add the nbr.pc principal components to res
 	res <- cbind(res2, pca$x[, 1:nbr.pc])
+
+	# Add variables, after masking points with same mask as for interpolation
+	if (!is.null(add.vars)) {
+		res <- cbind(res, add.vars[mask, ])
+	}
 	
 	# This is an 'aurelhy' object
 	class(res) <- c("aurelhy", "data.frame")
 	# Record parameters
 	attr(res, "call") <- call
 	attr(res, "nbr.pc") <- nbr.pc
-	attr(res, "auremask") <- auremask
-	attr(res, "msk") <- pc
+	attr(res, "scale") <- scale
+	attr(res, "tm") <- tm2
+	attr(res, "mask") <- mask
 	attr(res, "land") <- land
+	attr(res, "auremask") <- auremask
+	attr(res, "sectors") <- pc
+	attr(res, "pca") <- pca
+	attr(res, "model") <- model
 	return(res)
 }
 
 # Print and plot methods for aurelhy objects
 "print.aurelhy" <- function (x, ...)
 {
-	cat("An aurelhy object\n")
-	# TODO...
+	cat("An aurelhy object to interpolate points in a terrain model:\n")
+	print(attr(x, "tm"))
+	if (isTRUE(attr(x, "scale"))) {
+		cat("Keeping ", attr(x, "nbr.pc"), " PCs from a PCA on scaled data\n",
+			sep = "")
+	} else {
+		cat("\n\nKeeping ", attr(x, "nbr.pc"), " PCs from a PCA on non-scaled data\n",
+			sep = "")
+	}
+	cat("\nPredictive variables are:\n")
+	cat(paste(names(x), collapse = ", "))
+	cat("\n\nModel is: ")
+	print(attr(x, "model"))
 	return(invisible(x))
 }
 
-# This is the screeplot of the PCA
-"plot.aurelhy" <- function (x, y, ...)
+# The summary of the PCA
+"summary.aurelhy" <- function (object, ...)
 {
-	# TODO...
+	summary(attr(object, "pca"))
+}
+
+# This is the screeplot of the PCA
+"plot.aurelhy" <- function (x, y, main = "PCA on land descriptors", ...)
+{
+	pca <- attr(x, "pca")
+	plot(pca, npcs = length(pca$sdev), main = main, ...)
+}
+
+# A points methods that add interpolation points to a map
+"points.aurelhy" <- function (x, pch = ".", ...)
+{
+	points(x$x, x$y, pch = pch, ...)
+}
+
+# An update method for the aurelhy object
+"update.aurelhy" <- function (object, nbr.pc, scale, model, drop.vars, add.vars,
+var.name, ...)
+{
+	# TODO: the update method for the aurelhy object
+	stop("Not implemented yet!")
 }
 
 # Predict creates the interpolation
-"predict.aurelhy" <- function (object, geopoints, model, ...)
+"predict.aurelhy" <- function (object, geopoints, ...)
 {
 	# TODO: predict the interpolation...
+	stop("Not implemented yet!")
 }

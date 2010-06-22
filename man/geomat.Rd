@@ -49,7 +49,8 @@ write.geomask(x, file, type = "ascii", nodata = -9999, \dots)
 
 \method{print}{geomat}(x, \dots)
 \method{coords}{geomat}(x, type = "par", \dots)
-\method{resample}{geomat}(x, x0 = 1, y0 = 1, nx = 100, step = NULL, \dots)
+\method{resample}{geomat}(x, x0 = 1, y0 = 1, step = NULL, nx = 100, ny = nx,
+    strict = FALSE, \dots)
 \method{window}{geomat}(x, xlim, ylim, \dots)
 \method{plot}{geomat}(x, y = NULL, max.xgrid = 100, nlevels = 50,
     color.palette = terrain.colors, xlab = "Longitude", ylab = "Latitude",
@@ -97,13 +98,17 @@ write.geomask(x, file, type = "ascii", nodata = -9999, \dots)
     to represent the grid) }
   \item{x0}{ The X origin of the new grid }
   \item{y0}{ The Y origin of the new grid }
-  \item{nx}{ The desired number of points in the X direction. \code{resample()}
-    is a quick method that takes a point every n points in the grid without
-    doing more calculation. The final number of points is an integer value of
-    points that can be resampled without interpolation }
   \item{step}{ The step to use for resampling (\code{step = 2} means we take one
-    point every two original points in the grid). If \code{step} is provided,
-    \code{nx =} is ignored. }
+    point every two original points in the grid). }
+  \item{nx}{ The desired number of points in the X direction (longitude).
+    \code{resample()} is a quick method that takes a point every n points in the
+    grid without doing more calculation. The final number of points is an
+    integer value of points that can be resampled without interpolation }
+  \item{ny}{ idem than nx, but in the Y direction (latitude) }
+  \item{strict}{ do we interpolated the grid so that we obtain exactly \code{nx}
+    and \code{ny} point (when \code{strict = TRUE})? By default, not
+    (\code{strict = FALSE}) and we span as far as possible to the right and to
+    the bottom for the interpolated grid }
   \item{xlim}{ A vector of two numbers defining the limits to use in X direction
     (longitude) for the window }
   \item{ylim}{ A vector of two numbers defining the limits to use in Y direction
