@@ -250,6 +250,9 @@ var.name, ...)
 	stop("Not implemented yet!")
 }
 
+"as.geomat" <- function (x, ...)
+	UseMethod("as.geomat")
+
 # Transform any AURELHY predictor into a geomat object
 "as.geomat.aurelhy" <- function (x, what = "PC1", nodata = NA, ...)
 {
@@ -402,7 +405,7 @@ var.name, ...)
 	cat("A predict.aurelhy object with interpolated values for variable '",
 		attr(x, "variable"), "':\n", sep = "")
 	cat("\nPredictive variables are:\n")
-	pv <- names(attr(pmrain, "predictors"))
+	pv <- names(attr(x, "predictors"))
 	# We need to eliminate 'data' and 'resid' here (two last items)
 	pv <- pv[-(length(pv) - 1:0)]
 	cat(paste(pv, collapse = ", "))
@@ -451,9 +454,6 @@ var.name, ...)
 		stop("Not implemented yet!")
 	} else stop("'which' must be between 1 and 7")
 }
-
-"as.geomat" <- function (x, ...)
-	UseMethod("as.geomat")
 
 "as.geomat.predict.aurelhy" <- function (x,
 	what = c("Interpolated", "Predicted", "KrigedResiduals", "KrigeVariance"),
