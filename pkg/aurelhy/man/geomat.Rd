@@ -1,5 +1,6 @@
 \name{geomat}
 \Rdversion{1.1}
+\alias{as.geomat}
 \alias{geomat}
 \alias{geotm}
 \alias{geomask}
@@ -47,6 +48,8 @@ write.geomat(x, file, type = "ascii", integers = FALSE, nodata = -9999, \dots)
 write.geotm(x, file, type = "ascii", nodata = -9999, \dots)
 write.geomask(x, file, type = "ascii", nodata = -9999, \dots)
 
+as.geomat(x, \dots)
+
 \method{print}{geomat}(x, \dots)
 \method{coords}{geomat}(x, type = "par", \dots)
 \method{resample}{geomat}(x, x0 = 1, y0 = 1, step = NULL, nx = 100, ny = nx,
@@ -68,7 +71,7 @@ write.geomask(x, file, type = "ascii", nodata = -9999, \dots)
 
 \arguments{
   \item{x}{ An object (a matrix or data frame for \code{geomat()}, \code{geotm()},
-    or \code{geomask()}, or a 'geomat' object for the other functions) }
+    or \code{geomask()}, a 'predict.aurelhy' object for \code{as.geomat()}, or a 'geomat' object for the other functions) }
   \item{size}{ The size of a grid square (in decimal degrees) }
   \item{xcenter}{ The position of the center of the top-left square of the grid,
     that is, its longitude in decimal degrees }
@@ -149,14 +152,15 @@ write.geomask(x, file, type = "ascii", nodata = -9999, \dots)
 }
 
 \value{
-  A 'geomat' object, etc. Print => one latitudinal degree is approximately 110.9km
+  A 'geomat' object. For the \code{print()} method, size of the grid is presented
+  in km, with the corresponding conversion: one latitudinal degree is approximately 110.9km.
 }
 
 \author{
   Philippe Grosjean <phgrosjean@sciviews.org>
 }
 
-\seealso{ \code{\link{auremask}} }
+\seealso{ \code{\link{aurelhy}}, \code{\link{auremask}} }
 
 \examples{
 # Create a simple geomat object containing random numbers

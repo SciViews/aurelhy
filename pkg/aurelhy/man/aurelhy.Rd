@@ -1,12 +1,17 @@
 \name{aurelhy}
 \Rdversion{1.1}
 \alias{aurelhy}
+\alias{as.geomat.aurelhy}
 \alias{print.aurelhy}
 \alias{summary.aurelhy}
 \alias{plot.aurelhy}
 \alias{points.aurelhy}
 \alias{update.aurelhy}
 \alias{predict.aurelhy}
+\alias{print.predict.aurelhy}
+\alias{summary.predict.aurelhy}
+\alias{plot.predict.aurelhy}
+\alias{as.geomat.predict.aurelhy}
 
 \title{Create an 'aurelhy' object that contains required data to perform AURELHY interpolation }
 
@@ -17,7 +22,8 @@
 
 \usage{
 aurelhy(geotm, geomask, auremask = auremask(), x0 = 30, y0 = 30, step = 12,
-    nbr.pc = 10, scale = FALSE, model = data ~ ., add.vars = NULL, var.name = NULL)
+    nbr.pc = 10, scale = FALSE, model = data ~ ., vgm = vgm(1, "Sph", 10, 1),
+    add.vars = NULL, var.name = NULL)
 
 \method{print}{aurelhy}(x, \dots)
 \method{plot}{aurelhy}(x, y, main = "PCA on land descriptors", \dots)
@@ -25,7 +31,16 @@ aurelhy(geotm, geomask, auremask = auremask(), x0 = 30, y0 = 30, step = 12,
 \method{summary}{aurelhy}(object, \dots)
 \method{update}{aurelhy}(object, nbr.pc, scale, model,
     drop.vars, add.vars, var.name, \dots)
-\method{predict}{aurelhy}(object, geopoints, \dots)
+\method{predict}{aurelhy}(object, geopoints, variable, v.fit = NULL, \dots)
+
+\method{print}{predict.aurelhy}(x, \dots)
+\method{summary}{predict.aurelhy}(object, \dots)
+\method{plot}{predict.aurelhy}(x, y, which = 1, \dots)
+
+\method{as.geomat}{aurelhy}(x, what = "PC1", nodata = NA, \dots) 
+\method{as.geomat}{predict.aurelhy}(x,
+    what = c("Interpolated", "Predicted", "KrigedResiduals", "KrigeVariance"),
+	nodata = NA,\dots)
 }
 
 \arguments{
@@ -62,6 +77,8 @@ aurelhy(geotm, geomask, auremask = auremask(), x0 = 30, y0 = 30, step = 12,
     left-hand side of the formula must always be 'data' and the right-hand
     considers all predictors spearated by a plus sign. To use all predictors,
     specify \code{data ~ .} (by default). }
+  \item{vgm}{ the variogram model to fit, as defined by the \code{vgm()}
+    function of the gstat package }
   \item{drop.vars}{ the name of the variables to drop from the object }
   \item{add.vars}{ additional variable(s) measured at the same points as the
     final interpolation grid. They will be used as additional predictors. The
@@ -70,7 +87,7 @@ aurelhy(geotm, geomask, auremask = auremask(), x0 = 30, y0 = 30, step = 12,
     variables will be used. }
   \item{var.name}{ if \code{add.vars} is a 'geomat' object, you can give the
     name you want to use for this predictor here. }
-  \item{x}{ an 'aurelhy' object }
+  \item{x}{ an 'aurelhy' or 'predict.aurelhy' object, depending on the method invoked }
   \item{y}{ a 'geopoints' object to create a plot best depicting the
     interpolation process, or nothing to just plot the interpolation grid. }
   \item{main}{ the main title of the graph }
@@ -78,6 +95,13 @@ aurelhy(geotm, geomask, auremask = auremask(), x0 = 30, y0 = 30, step = 12,
     \code{pch = "."} prints a small (usually one pixel size) square }
   \item{object}{ an 'aurelhy' object }
   \item{geopoints}{ a 'geopoints' object with data to be interpolated. }
+  \item{variable}{ the name of the variable in the 'geopoints' object to interpolate }
+  \item{v.fit}{ the fitted variogram model used to krige residuals. If \code{NULL}
+    (by default), a fitted model for the variogram is calculated, starting from the
+    model provided in the 'aurelhy' object, 'vgm' slot }
+  \item{which}{ which graph to plot }
+  \item{what}{ what is extracted as a 'geomat' object }
+  \item{nodata}{ the code used to represent missing data in the 'geomat' object }
   \item{\dots}{ further arguments passed to the function }
 }
 
@@ -108,6 +132,7 @@ data(morocco)  # The terrain model with a grid of about 924x924m
 data(mbord)    # A shape with Morocco's border
 data(mmask)    # A 924x924m grid with a mask covering Morocco's territory
 data(mseadist) # The distance to the sea for Morocco's territory
+data(mrain)    # Rain data measured at 43 stations to be interpolated
 
 # Create a map with these data
 image(morocco) # Plot the terrain model
@@ -115,20 +140,91 @@ grid()
 lines(mbord, col = "red") # Add administrative borders in red
 
 # Now, create an aurelhy object with landscape description, using the
-# first five PCs, plus the distance to the sea (mseadist) for prediction
+# first ten PCs, plus the distance to the sea (mseadist) for prediction
 # Use a default radial mask of 26km as maximum distance
 # and an interpolation grid of 0.1x0.1degrees (roughly 11x11km)
+# The variogram model is kept simple here, see ?vgm for other choices
 # Be patient... this takes a little time to calculate!
 maurelhy <- aurelhy(morocco, mmask, auremask(), x0 = 30, y0 = 54, step = 12,
-    scale = TRUE, nbr.pc = 5, add.vars = mseadist, var.name = "seadist")
+    scale = TRUE, nbr.pc = 10, vgm = vgm(100, "Sph", 1, 1),
+    add.vars = mseadist, var.name = "seadist")    
 maurelhy
 points(maurelhy) # Add the interpolated points on the map
+points(mrain, col = "red") # Add location of weather stations in red
 
 # Diagnostic of the PCA on land descriptors
 summary(maurelhy)
 plot(maurelhy)
 
-# TODO: example of update() and predict()
+# Interpolate 'rain' variable on the whole Morocco territory
+# Since we do not want negative values for this variable and it is log-normally
+# distributed, we will interpolate log10(rain) instead
+mrain$logRain <- log10(mrain$rain)
+pmrain <- predict(maurelhy, mrain, "logRain")
+pmrain
+
+# Diagnostic of regression model
+summary(pmrain) # Significant predictors at alpha = 0.01 are x, y, PC3, PC6 and PC7
+# one could simplify the model as data ~ x + y + PC3 + PC6 + PC7
+# but it is faster to keep the full model for final interpolation
+# when we are only interested by the final interpolation or when processing
+# is automated...
+# Any of the predictors can be extracted from maurelhy as a geomat object
+# for further inspection. For instance, let's look at PC3, PC6 and PC7 components
+persp(as.geomat(maurelhy, "PC3"), expand = 50)
+persp(as.geomat(maurelhy, "PC6"), expand = 50)
+persp(as.geomat(maurelhy, "PC7"), expand = 50)
+
+plot(pmrain, which = 1) # Residuals versus fitted (how residuals spread?)
+plot(pmrain, which = 2) # Normal Q-Q plot of residuals (residuals distribution)
+plot(pmrain, which = 3) # Best graph to look at residuals homoscedasticity
+plot(pmrain, which = 4) # Cook's distance of residuals versus observation
+plot(pmrain, which = 5) # Residuals leverage: are there influencial points?
+# Map of predicted values
+filled.contour(as.geomat(pmrain, "Predicted"), asp = 1,
+    color.palette = terrain.colors, main = "Values predicted by the linear model")
+
+# Residuals kriging diagnostic
+plot(pmrain, which = 6) # Semi-variogram and adjusted model
+filled.contour(as.geomat(pmrain, "KrigedResiduals"), asp = 1,
+    color.palette = terrain.colors, main = "Kriged residuals")
+filled.contour(as.geomat(pmrain, "KrigeVariance"), asp = 1,
+    color.palette = terrain.colors, main = "Kriged residuals variance")
+# As we can expect, kriging variance is larger in the south/south-west part
+# where density of stations is low
+
+# AURELHY interpolation diagnostic plots
+# Graph showing the importance of predicted versus kriged residuals for
+# all observations
+# TODO: plot(pmrain, which = 7)
+
+# Extract interpolated log(rain) and transform back into rain (mm)
+geomrain <- as.geomat(pmrain)
+geomrain <- 10^geomrain
+
+# How is interpolated rain distributed?
+range(geomrain, na.rm = TRUE)
+range(mrain$rain)
+
+# Ooops! We have some very high values! How many?
+sum(geomrain > 1000, na.rm = TRUE)
+# This is probably due to a lack of data at high altitudes
+# Let's truncate them to 1000 for a better graph
+geomrain[geomrain > 1000] <- 1000
+# ... and plot the result
+image(geomrain, col = topo.colors(12))
+contour(geomrain, add = TRUE)
+lines(mbord, col = "red")
+points(mrain, col = "red")
+
+# A better plot for these interpolated rain data
+filled.contour(coords(geomrain, "x"), coords(geomrain, "y"), geomrain,
+    asp = 1, xlab = "Longitude", ylab = "Latitude",
+    main = "AURELHY interpolated rain data", key.title = title(sub = "Rain (mm)\n\n"), 
+    color.palette = colorRampPalette(c("red", "gray", "blue"), bias = 2))
+
+
+# TODO: example of update()
 }
 
 \keyword{utilities}

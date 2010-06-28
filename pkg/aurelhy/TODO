@@ -1,8 +1,6 @@
 = aurelhy To Do list
 
-* The geopoints object used for data to interpolate
-
-* The update() and predict() methods for the aurelhy object
+* The update() method for the aurelhy object
 
 * Full handling of square auremasks
  

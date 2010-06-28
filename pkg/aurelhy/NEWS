@@ -1,5 +1,29 @@
 = aurelhy News
 
+== aurelhy version 0.1-6
+
+* Complete AURELHY interpolation is implemented now for radial auremask. There
+  are also print(), summary() and plot() methods for further diagnostic
+  
+* Interpolated geomat objects are extracted from aurelhy and aurelhy.predict
+  objects using the as.geomat() method
+  
+* A new dataset, mrain, is added: it is rain data measured at 43 stations
+
+* A complete example AURELHY interpolation is ready now in the ?aurelhy man page
+
+
+== aurelhy version 0.1-5
+
+* geopoints objects are added. They are more convenient to use than geoshapes
+  to manipulate a series of variables measured at given georeferenced points
+  (stations). There are also read.geopoints() and write.geopoints() function,
+  as well as print() and points() methods
+  
+* An example geopoints object is added: mpet. It is PET measurements at various
+  weather station on Morocoo's territory and around
+
+
 == aurelhy version 0.1-4
 
 * morocco and mmask datasets are enlarged a little bit to have enough border
@@ -8,7 +32,7 @@
   
 * mseadist dataset is added
   
-* the aurelhy() object is added. It is the main object to perform the AURELHY
+* The aurelhy object is added. It is the main object to perform the AURELHY
   interpolation, which is done using its predict() method. Methods print(),
   summary(), plot(), points() are also available. Methods update() and predict()
   are not implemented yet in this version.
