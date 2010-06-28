@@ -5,7 +5,7 @@
 	if (inherits(x, "geoshapes")) return(x)	# Nothing to do
 	if (!is.null(dbf) && !inherits(dbf, "data.frame"))
 		stop("'dbf' must be a data frame or NULL")
-	if (inherits(x, "data.frame") && c("x", "y") %in% names(x)) {
+	if (inherits(x, "data.frame") && all(c("x", "y") %in% names(x))) {
 		# Convert into a list
 		res <- list()
 		res[[as.character(name)[1]]] <- data.frame(x = x$x, y = x$y)
@@ -13,7 +13,7 @@
 		# Check that each item in the list is a data frame with 'x' and 'y'
 		# columns
 		isOK <- function (x)
-			return(inherits(x, "data.frame") && names(x) == c("x", "y"))
+			return(inherits(x, "data.frame") && all(names(x) == c("x", "y")))
 		test <- sapply(x, isOK)
 		if (!all(test))
 			stop("'x' must be a list of data frames with only columns 'x' and 'y'")

@@ -10,9 +10,10 @@
 #    A predict.aurelhy object is created that one can inspect (regression,
 #    kriging? ...). One can also convert the result into a geomat object, using
 #    the as.geomat() function
+# TODO: correct name for the variable, using var.name
 "aurelhy" <- function (geotm, geomask, auremask = auremask(), x0 = 30, y0 = 30,
-step = 12, nbr.pc = 10, scale = FALSE, model = data ~ ., add.vars = NULL,
-var.name = NULL)
+step = 12, nbr.pc = 10, scale = FALSE, model = data ~ ., vgm = vgm(1, "Sph", 10, 1),
+add.vars = NULL, var.name = NULL)
 {	
 	call <- match.call()
 	
@@ -101,7 +102,6 @@ var.name = NULL)
 		if (!is.null(var.name)) {
 			if (length(var.name) != 1)
 				stop("var.name must be of length 1, when add.vars is a 'geomat' object")
-			names(add.vars) <- var.name	
 		}
 	}
 	
@@ -109,10 +109,9 @@ var.name = NULL)
 	geotm[is.na(geotm)] <- 0
 	
 	# add 'mask' to the table
-	mask <- as.vector(mask)
-	res$mask <- mask
+	res$mask <- as.vector(mask)
 	# res2 contains only points we keep
-	res2 <- res[mask, ]
+	res2 <- res[as.vector(mask), ]
 
 	# We choose a point in the middle of the original geotm object
 	m <- band * size * 1.01
@@ -178,7 +177,12 @@ var.name = NULL)
 
 	# Add variables, after masking points with same mask as for interpolation
 	if (!is.null(add.vars)) {
-		res <- cbind(res, add.vars[mask, ])
+		add.vars <- add.vars[mask, ]
+		res <- cbind(res, add.vars)
+		# Do we have a name for an additional variable to use instead?
+		Names <- names(res)
+		Names[length(Names)] <- var.name
+		names(res) <- Names	
 	}
 	
 	# This is an 'aurelhy' object
@@ -194,6 +198,7 @@ var.name = NULL)
 	attr(res, "sectors") <- pc
 	attr(res, "pca") <- pca
 	attr(res, "model") <- model
+	attr(res, "vgm") <- vgm
 	return(res)
 }
 
@@ -211,8 +216,10 @@ var.name = NULL)
 	}
 	cat("\nPredictive variables are:\n")
 	cat(paste(names(x), collapse = ", "))
-	cat("\n\nModel is: ")
+	cat("\n\nRegression model is:\n")
 	print(attr(x, "model"))
+	cat("\nVariogram model is:\n")
+	print(attr(x, "vgm"))
 	return(invisible(x))
 }
 
@@ -243,9 +250,229 @@ var.name, ...)
 	stop("Not implemented yet!")
 }
 
-# Predict creates the interpolation
-"predict.aurelhy" <- function (object, geopoints, ...)
+# Transform any AURELHY predictor into a geomat object
+"as.geomat.aurelhy" <- function (x, what = "PC1", nodata = NA, ...)
 {
-	# TODO: predict the interpolation...
-	stop("Not implemented yet!")
+	# We look if what is one of the variables present in this object
+	what <- as.character(what)[1]
+	if (!what %in% names(x))
+		stop("'what' must be one of the variables of the 'aurelhy' x object")
+	dat <- x[[what]]
+	pos <- as.numeric(rownames(x))	# Position of the points in the matrix
+	# Start from the mask to create our geomat object
+	mask <- attr(x, "mask")
+	res <- matrix(nodata, nrow = nrow(mask), ncol = ncol(mask))
+	attr(res, "coords") <- attr(mask, "coords")
+	class(res) <- c("geomat", "matrix")
+	# Fill corresponding points with the data
+	res[pos] <- dat
+	return(res)
+}
+
+# Predict creates the interpolation
+# TODO: argument non.negative => take log1p(data)
+"predict.aurelhy" <- function (object, geopoints, variable, v.fit = NULL, ...)
+{
+	# Check arguments
+	if (!inherits(object, "aurelhy"))
+		stop("'object' must be an 'aurelhy' object")
+	if (!inherits(geopoints, "geopoints"))
+		stop("'geopoints' must be a 'geopoints' object")
+	variable <- as.character(variable)
+	if (length(variable) < 1)
+		stop("You must provide the name of a variable to interpolate")
+	if (length(variable) > 1)
+		stop("Cannot interpolate more than one variable at a time")
+	if (!variable %in% names(geopoints))
+		stop("variable must be the name of one column in the 'geopoints' object")
+	# Look for the points that are closest to the grid in the 'geopoints' object
+	# Quick calculation by transforming coordinates into their closest index
+	# in the grid
+	Mask <- attr(object, "mask")
+	Coords <- coords(Mask)
+	X = (geopoints$x - Coords["x"]) / Coords["size"]
+	Y = (geopoints$y - Coords["y"]) / Coords["size"]
+	# Make a data frame with data, coords and indices
+	df <- data.frame(x = geopoints$x, y = geopoints$y,
+		data = as.numeric(geopoints[, variable]),
+		X = X, Y = Y, Xind = round(X) + 1, Yind = round(Y) + 1)
+	# Eliminate points that are outside the grid
+	In <- rep(TRUE, nrow(df))
+	In[df$Xind < 1] <- FALSE
+	In[df$Xind > nrow(Mask)] <- FALSE
+	In[df$Yind < 1] <- FALSE
+	In[df$Yind > ncol(Mask)] <- FALSE
+	df <- df[In, ]
+	# Check which point is in the mask
+	df$OK <- diag(Mask[df$Xind, df$Yind])
+	#
+	# We can possibly check too if rejected points do not match either of the four
+	# corners surrounding actual location (sometimes it happens for points near
+	# or on the border of the mask)
+	checkCorner <- function (df, mask, topX, topY) {
+		nOK <- !df$OK
+		Xout <- df$X[nOK]
+		Yout <- df$Y[nOK]
+		if (isTRUE(topX)) XoutC <- ceiling(Xout) + 1 else XoutC <- floor(Xout) + 1
+		if (isTRUE(topY)) YoutC <- ceiling(Yout) + 1 else YoutC <- floor(Yout) + 1
+		OKc <- diag(mask[XoutC, YoutC])
+		if (any(OKc)) {
+			nOKc <- nOK
+			nOKc[nOKc] <- OKc
+			df$Xind[nOKc] <- XoutC[OKc]
+			df$Yind[nOKc] <- YoutC[OKc]
+			df$OK[nOKc] <- TRUE
+		}
+		return(df)
+	}
+	# Check each of the four corners around actual coordinates to find a point in the grid
+	if (!all(df$OK)) df <- checkCorner(df, Mask, TRUE, TRUE)
+	if (!all(df$OK)) df <- checkCorner(df, Mask, TRUE, FALSE)
+	if (!all(df$OK)) df <- checkCorner(df, Mask, FALSE, TRUE)
+	if (!all(df$OK)) df <- checkCorner(df, Mask, FALSE, FALSE)
+	# Keep only those points that are in the mask (df$OK)
+	df <- df[df$OK, ]
+
+	# Get AURELHY descriptors for the same points and merge them together with 'data'
+	# Selection is done according to rownames of the aurelhy object, after converting
+	# Xind and Yind into corresponding row names
+	df$pos <- df$Xind + (nrow(Mask) * (df$Yind - 1))
+	pred <- as.data.frame(object)
+	# Keep only items that match data in df
+	pred <- pred[match(df$pos, as.numeric(rownames(pred))), ]
+	# Add data to this table
+	pred$data <- df$data
+	
+	# Adjust a linear model on these data
+	model <- attr(object, "model")
+	lmod <- lm(model, data = pred)
+	# Extract residuals
+	pred$resid <- resid(lmod)
+	# and predict values for all the points of the grid within the mask
+	grid.mod <- predict(lmod, newdata = as.data.frame(object))
+	# Print a very short information about adjusted R-squared value
+	cat("[adjusted R-squared is ",
+		round(summary(lmod)$adj.r.squared, digits = 3), "]\n", sep = "")
+
+	# Adjust the semi-variogram with the model
+	vgm <- attr(object, "vgm") # The variogram model to use
+	Pred <- pred
+	coordinates(Pred) <- ~ x + y
+	v <- variogram(resid ~ x + y, Pred)
+	if (is.null(v.fit)) # Fit the variogram model now, if not provided
+		v.fit <- fit.variogram(v, vgm)
+
+	# Krige residuals using this fitted variogram model
+	# Note that krige method of gstat can only apply on rectangular areas
+	# so, we need to krige on the whole bounding box, and then, select
+	# points of interest using the mask
+	Pred.grid <- coords(Mask, "xy")
+	gridded(Pred.grid) <- ~ x + y
+	k <- krige(resid ~ x + y, Pred, Pred.grid, model = v.fit)
+	# Extract krigged residuals and keep only those corresponding to the mask
+	k.resid <- k["var1.pred"]@data[Mask]
+	names(k.resid) <- names(grid.mod)
+	# Also extract kriging variance
+	k.var <- k["var1.var"]@data[Mask]
+	names(k.var) <- names(grid.mod)
+	# The final result is the sum of the value predicted by the model (grid.mod)
+	# and the kriged residuals (k.resid)
+	res <- grid.mod + k.resid
+
+	# Construct a predict.aurelhy object
+	attr(res, "variable") <- variable
+	attr(res, "mask") <- Mask
+	attr(res, "predictors") <- pred
+	attr(res, "model") <- model
+	attr(res, "lm") <- lmod
+	attr(res, "predicted") <- grid.mod
+	attr(res, "vgm") <- vgm
+	attr(res, "variogram") <- v
+	attr(res, "v.fit") <- v.fit
+	attr(res, "df") <- df
+	attr(res, "krige.resid") <- k.resid
+	attr(res, "krige.resid.var") <- k.var
+	class(res) <- c("predict.aurelhy", "data.frame")	
+	return(res)
+}
+
+# Print, summary and plot methods for predict.aurelhy objects
+"print.predict.aurelhy" <- function (x, ...)
+{
+	cat("A predict.aurelhy object with interpolated values for variable '",
+		attr(x, "variable"), "':\n", sep = "")
+	cat("\nPredictive variables are:\n")
+	pv <- names(attr(pmrain, "predictors"))
+	# We need to eliminate 'data' and 'resid' here (two last items)
+	pv <- pv[-(length(pv) - 1:0)]
+	cat(paste(pv, collapse = ", "))
+	cat("\n\nRegression model (adjusted R-squared = ",
+		round(summary(attr(x, "lm"))$adj.r.squared, digits = 3), ") is:\n", sep = "")
+	print(attr(x, "model"))
+	cat("Predicted values are distributed as follows:\n")
+	print(summary(attr(x, "predicted")))
+	cat("Residuals on provided predictors are distributed as follows:\n")
+	print(summary(attr(x, "predictors")$resid))
+	cat("\nVariogram model for universal kriging of the residuals is:\n")
+	print(attr(x, "v.fit"))
+	cat("Kriged residuals are distributed as follows:\n")
+	print(summary(attr(x, "krige.resid")))
+	cat("\nInterpolated values for '", attr(x, "variable"),
+		"' are distributed as follows:\n", sep = "")
+	print(summary(as.numeric(x)))
+	return(invisible(x))
+}
+
+# The summary of the regression done on predictors
+"summary.predict.aurelhy" <- function (object, ...)
+{
+	summary(attr(object, "lm"))
+}
+
+"plot.predict.aurelhy" <- function (x, y, which = 1, ...)
+{
+	which <- as.integer(which)[1]
+	if (which > 0 && which <= 5) {
+		# The five first graphs are residuals graphs for linear model
+		plot(attr(x, "lm"), which = which, ...)
+	} else if (which == 6) {
+		# This is the variogram model
+		v <- attr(x, "variogram")
+		v.fit <- attr(x, "v.fit")
+		v.model <- variogramLine(v.fit, max(v$dist), 50)
+		plot(gamma ~ dist, data = v, xlab = "distance", ylab = "semivariance",
+			ylim = c(0, max(v$gamma)),
+			main = "Semivariogram model used for residuals kriging", ...)
+		lines(gamma ~ dist, data = v.model, col  = "red", ...)
+	} else if (which == 7) {
+		# Graph showing the various components of AURELHY interpolation
+		# versus observed values
+		# TODO...
+		stop("Not implemented yet!")
+	} else stop("'which' must be between 1 and 7")
+}
+
+"as.geomat" <- function (x, ...)
+	UseMethod("as.geomat")
+
+"as.geomat.predict.aurelhy" <- function (x,
+	what = c("Interpolated", "Predicted", "KrigedResiduals", "KrigeVariance"),
+	nodata = NA, ...)
+{
+	# We extract either interpolated, predicted, or kriged residuals or variance
+	what <- match.arg(what)
+	dat <- switch(what,
+		Interpolated = as.numeric(x),
+		Predicted = as.numeric(attr(x, "predicted")),
+		KrigedResiduals = as.numeric(attr(x, "krige.resid")),
+		KrigeVariance = as.numeric(attr(x, "krige.resid.var")))
+	pos <- as.numeric(names(x))	# Position of the points in the matrix
+	# Start from the mask to create our geomat object
+	mask <- attr(x, "mask")
+	res <- matrix(nodata, nrow = nrow(mask), ncol = ncol(mask))
+	attr(res, "coords") <- attr(mask, "coords")
+	class(res) <- c("geomat", "matrix")
+	# Fill corresponding points with the data
+	res[pos] <- dat
+	return(res)
 }

@@ -7,7 +7,7 @@
 \alias{lines.geoshapes}
 \alias{points.geoshapes}
 
-\title{A geosshape object containing one or more georeferenced shapes}
+\title{A 'geoshapes' object containing one or more georeferenced shapes}
 
 \description{
   Geoshapes objects contain one or more shapes (that is, polygons, points, or
@@ -63,7 +63,7 @@ write.geoshapes(x, file, type = c("polygon", "point", "polyLine"),
   Philippe Grosjean <phgrosjean@sciviews.org>
 }
 
-\seealso{ \code{\link{geomat}} }
+\seealso{ \code{\link{geomat}}, \code{\link{geopoints}} }
 
 \examples{
 data(mbord) # Morocco borders
