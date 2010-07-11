@@ -10,8 +10,7 @@
 		res <- list()
 		res[[as.character(name)[1]]] <- data.frame(x = x$x, y = x$y)
 	} else if (inherits(x, "list")) {
-		# Check that each item in the list is a data frame with 'x' and 'y'
-		# columns
+		# Check each item in the list is a data frame with 'x' and 'y' columns
 		isOK <- function (x)
 			return(inherits(x, "data.frame") && all(names(x) == c("x", "y")))
 		test <- sapply(x, isOK)

@@ -23,8 +23,9 @@ auremask(type = "radial", dist = c(1, 6, 11, 16, 21, 26),
   \item{type}{ the type of mask, either \code{"radial"} (by default), or
     \code{"rectangular"} as in the initial version of the AURELHY method. }
   \item{dist}{ A vector of distances (in km) to consider in the mask for the
-    \code{"radial"} mask, or the largest distance to consider for a
-    \code{"rectangular"} mask }
+    \code{"radial"} mask, or the distance to consider between two grid points
+    for a \code{"rectangular"} mask (in this case, if you provide several
+    distances, only the smallest one will be considered) }
   \item{angles}{ A vector of angles in radians to use to construct a
     \code{"radial"} mask. This argument is ignored for \code{"rectangular"}
     mask. Avoid to use angles parallels to the grid, like 0 or pi/4, because you

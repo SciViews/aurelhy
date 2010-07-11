@@ -147,13 +147,15 @@ as.geomat(x, \dots)
     plotting method) }
 }
 
-\details{
-  \code{geomat()}, etc.
-}
-
 \value{
+  An object of class, respectively 'geomat', 'geotm' or 'geomask' inheriting from
+  'matrix' is created. Methods either return an object of same class, or are used
+  for their side effect of plotting a graph. Objects 'geotm' and 'geomask' also
+  inherit from 'geomat'.
+  
   A 'geomat' object. For the \code{print()} method, size of the grid is presented
-  in km, with the corresponding conversion: one latitudinal degree is approximately 110.9km.
+  in km, with the corresponding conversion: one latitudinal degree is
+  approximately 110.9km.
 }
 
 \author{

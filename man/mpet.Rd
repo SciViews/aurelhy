@@ -11,9 +11,6 @@ The \code{mpet} dataset is a 'geopoints' object (georeferenced points data).
   This 'geopoints' object contains a data frame with PET measurements (\code{D1} - \code{D36})
   made at 18 weather stations (names in \code{STATION} and coordinates in \code{x} and \code{y}). 
 }
-\source{
-TODO: add source of these data.
-}
 
 \seealso{ \code{\link{geopoints}}, \code{\link{morocco}},
   \code{\link{mbord}}, \code{\link{mrain}}}

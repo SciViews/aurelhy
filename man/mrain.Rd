@@ -12,9 +12,6 @@ The \code{mrain} dataset is a 'geopoints' object (georeferenced points data).
   This 'geopoints' object contains a data frame with rain measurements (\code{rain} variable)
   made at 43 weather stations (coordinates in \code{x} and \code{y} variables). 
 }
-\source{
-TODO: add source of these data.
-}
 
 \seealso{ \code{\link{geopoints}}, \code{\link{morocco}},
   \code{\link{mbord}}, \code{\link{mpet}}}
