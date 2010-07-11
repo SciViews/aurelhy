@@ -29,8 +29,7 @@ aurelhy(geotm, geomask, auremask = auremask(), x0 = 30, y0 = 30, step = 12,
 \method{plot}{aurelhy}(x, y, main = "PCA on land descriptors", \dots)
 \method{points}{aurelhy}(x, pch = ".", \dots)
 \method{summary}{aurelhy}(object, \dots)
-\method{update}{aurelhy}(object, nbr.pc, scale, model,
-    drop.vars, add.vars, var.name, \dots)
+\method{update}{aurelhy}(object, nbr.pc, scale, model, vgm, \dots)
 \method{predict}{aurelhy}(object, geopoints, variable, v.fit = NULL, \dots)
 
 \method{print}{predict.aurelhy}(x, \dots)
@@ -79,7 +78,6 @@ aurelhy(geotm, geomask, auremask = auremask(), x0 = 30, y0 = 30, step = 12,
     specify \code{data ~ .} (by default). }
   \item{vgm}{ the variogram model to fit, as defined by the \code{vgm()}
     function of the gstat package }
-  \item{drop.vars}{ the name of the variables to drop from the object }
   \item{add.vars}{ additional variable(s) measured at the same points as the
     final interpolation grid. They will be used as additional predictors. The
     example show you how you can add or remove such variables after the
@@ -118,6 +116,11 @@ aurelhy(geotm, geomask, auremask = auremask(), x0 = 30, y0 = 30, step = 12,
 \value{
   An 'aurelhy' object with all information required to perform an AURELHY
   interpolation with any 'geopoints' data.
+}
+
+\source{
+  Benichou P, Le Breton O (1987). Prise en compte de la topographie pour la
+  cartographie des champs pluviometriques statistiques. La Meteorologie, 7:23-34.
 }
 
 \author{
@@ -196,7 +199,7 @@ filled.contour(as.geomat(pmrain, "KrigeVariance"), asp = 1,
 # AURELHY interpolation diagnostic plots
 # Graph showing the importance of predicted versus kriged residuals for
 # all observations
-# TODO: plot(pmrain, which = 7)
+plot(pmrain, which = 7)  # Model prediction and kriged residuals
 
 # Extract interpolated log(rain) and transform back into rain (mm)
 geomrain <- as.geomat(pmrain)
@@ -224,7 +227,35 @@ filled.contour(coords(geomrain, "x"), coords(geomrain, "y"), geomrain,
     color.palette = colorRampPalette(c("red", "gray", "blue"), bias = 2))
 
 
-# TODO: example of update()
+# One can experiment different interpolation parameters using update()
+# Suppose we (1) don't want to scale PCs, (2) to keep only first 7 PCs,
+# (3) we want an upgraded linear model like this:
+# data <- a.x + b.y + c.z + d.PC3 + e.PC6 + f.PC7 + g.seadist + h.seadist^2 + i
+# and (4) we want a Gaussian model for the semi-variogram
+# (note that one can also regress against seadist2 <- seadist^2), just do:
+# maurelhy2$seadist2 <- maurelhy$seadist^2
+# Even with all these changes, you don't have to recompute maurelhy,
+# just update() it and the costly steps of calculating landscape descriptors
+# are reused (not the use of I() to protect calcs inside a formula)!
+maurelhy2 <- update(maurelhy, scale = FALSE, nbr.pc = 7,
+  model = data ~ x + y + z + PC3 + PC6 + PC7 + seadist + I(seadist^2),
+  vgm = vgm(100, "Gau", 1, 1))
+maurelhy2
+
+# Diagnostic of the new PCA on land descriptors without scaling
+summary(maurelhy2)
+plot(maurelhy2)
+
+# Interpolate with the new parameters
+pmrain2 <- predict(maurelhy2, mrain, "logRain")
+summary(pmrain2)
+
+# A couple of graphs
+plot(pmrain2, which = 1) # Residuals versus fitted (how residuals spread?)
+plot(pmrain, which = 6) # Semi-variogram and adjusted model
+plot(pmrain2, which = 7) # Model prediction and kriged residuals
+
+#... Explore as much as you like until you find the set of parameters the suits you!
 }
 
 \keyword{utilities}

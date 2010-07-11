@@ -10,9 +10,6 @@ The \code{morocco} dataset is a 'geotm' object (georeferenced terrain model).
 \format{
   This 'geotm' object contains a grid of 1986x1866 elevation points (in m). 
 }
-\source{
-TODO: add source of these data.
-}
 
 \seealso{ \code{\link{geotm}}, \code{\link{mbord}} , \code{\link{mmask}}}
 

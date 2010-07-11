@@ -9,7 +9,8 @@ angles = 0:7 * pi/4 + 0.01, n = 11, keep.origin = FALSE)
 	n <- round(n[1])
 	# Make sure that n is odd
 	if (n %% 2 == 0) n <- n + 1
-	if (type == "rectangular") dist <- dist[1]	# Keep only first dist for rect
+	# Keep only largest dist for rect
+	if (type == "rectangular") dist <- min(dist, na.rm = TRUE)	
 		
 	"radgrid" <- function (dist, angles, keep.origin) {
 		grd <- data.frame(x = as.vector(dist %o% cos(angles)),
@@ -23,7 +24,7 @@ angles = 0:7 * pi/4 + 0.01, n = 11, keep.origin = FALSE)
 	
 	"rectgrid" <- function (dist, n, keep.origin) {
 		# The distances to consider
-		dist <- (-(n-1)/2):((n-1)/2) * dist
+		dist <- (-n/2):(n/2) * dist
 		grd <- data.frame(x = rep(dist, n), y = rep(dist, each = n))
 		# Do we eliminate the origin?
 		if (!keep.origin) {
@@ -56,35 +57,37 @@ angles = 0:7 * pi/4 + 0.01, n = 11, keep.origin = FALSE)
 	cat("An auremask object defining a", type, "mask\n")
 	orig.mes <-
 		if (attr(x, "keep.origin")) "including origin" else "excluding origin"
-	cat("The mask uses", nrow(x), "points", orig.mes, "\n")
 	if (type == "radial") {
+		cat("The mask uses", nrow(x), "points", orig.mes, "\n")
 		cat("Distance considered (km):\n")
 		print(attr(x, "dist"))
 		cat("... at angles (rad):\n")
 		print(round(attr(x, "angles"), digits = 3))
 	} else {
-		cat("The mask uses", attr(x, "n"), "distances spaced each by",
+		n <- attr(x, "n")
+		ntot <- n*n
+		if (!attr(x, "keep.origin")) ntot <- ntot - 1
+		cat("The mask uses", ntot, "points", orig.mes, "\n")
+		cat("The mask uses", n, "distances spaced each by",
 			attr(x, "dist"), "km\n")
 	}
 	# If we provide a geomat, look at how many points are in each sector
 	if (!missing(geomat)) {
 		if (!inherits(geomat, "geomat"))
 			stop("'geomat' must be a geomat object")
-		if (type == "radial") {
-			# TODO: extract this (duplicated from plot)
-			
-			# We choose a point in the middle of the grid
-			coords <- coords(geomat)
-			x0 <- coords(geomat, "x")[nrow(geomat) %/% 2]
-			y0 <- coords(geomat, "y")[ncol(geomat) %/% 2]
-			maxdist <- max(attr(x, "dist"))
-			maxdeg <- maxdist / 110.9
-			m <- maxdeg * 1.05
-			xlim <- c(x0 - m, x0 + m)
-			ylim <- c(y0 - m, y0 + m)
-			# Take a window out of these data
-			geomat2 <- window(geomat, xlim, ylim)
-			pt <- coords(geomat2, "xy")
+		# We choose a point in the middle of the grid
+		coords <- coords(geomat)
+		x0 <- coords(geomat, "x")[nrow(geomat) %/% 2]
+		y0 <- coords(geomat, "y")[ncol(geomat) %/% 2]
+		maxdist <- max(attr(x, "dist"))
+		if (type == "rectangular") maxdist <- maxdist * (attr(x, "n") / 2)
+		maxdeg <- maxdist / 110.9
+		m <- maxdeg * 1.05
+		xlim <- c(x0 - m, x0 + m)
+		ylim <- c(y0 - m, y0 + m)
+		# Take a window out of these data
+		geomat2 <- window(geomat, xlim, ylim)
+		if (type == "radial") {			
 			# Get the different groups to be used in different colors
 			pc <- polar.coords(geomat2, x0, y0, maxdist)
 			# Make classes for angles and distances
@@ -92,12 +95,28 @@ angles = 0:7 * pi/4 + 0.01, n = 11, keep.origin = FALSE)
 			angles <- attr(x, "angles")
 			pc$dist <- cut(pc$dist, breaks = dists,  labels = 1:(length(dists) - 1))
 			pc$angle <- cut(pc$angle, breaks = c(angles, 8),  labels = 1:length(angles))
+			pc <- pc[!is.na(pc$dist) & !is.na(pc$angle), ]
 			cat("Total number of points used:", NROW(pc), "\n")
 			cat("with the following repartition per sector:\n")
 			# Print a contingency table
 			print(table(dist = pc$dist, angle = pc$angle))
 		} else {
-			warning("Nbr. of points per sector not implemented yet for rectangular masks")
+			# Select rectangular grid sectors and look which points are in each
+			# rectangle in the geomat's grid
+			pt <- coords(geomat2, "xy")
+			xcut <- unique(x$x) / 110.9 + x0
+			ycut <- unique(x$y) / 110.9 + y0
+			pt$x <- cut(pt$x, breaks = xcut,  labels = 1:(length(xcut) - 1))
+			pt$y <- cut(pt$y, breaks = ycut,  labels = 1:(length(ycut) - 1))
+			# Eliminate data at origin, in case keep.origin == FALSE
+			if (!attr(x, "keep.origin"))
+				pt$x[pt$x == (length(xcut) - 1 ) %/% 2 + 1 &
+					 pt$y == (length(ycut) - 1 ) %/% 2 + 1] <- NA
+			pt <- pt[!is.na(pt$x) & !is.na(pt$y), ]
+			cat("Total number of points used:", NROW(pt), "\n")
+			cat("with the following repartition per sector:\n")
+			# Print a contingency table
+			print(table(x = pt$x, y = pt$y))
 		}
 	}
 	return(invisible(x))
@@ -137,15 +156,16 @@ angles = 0:7 * pi/4 + 0.01, n = 11, keep.origin = FALSE)
 	coords <- coords(y)
 	x0 <- coords(y, "x")[nrow(y) %/% 2]
 	y0 <- coords(y, "y")[ncol(y) %/% 2]
+	maxdist <- max(attr(x, "dist"))
+	if (type == "rectangular") maxdist <- maxdist * (attr(x, "n") / 2)
+	maxdeg <- maxdist / 110.9
+	m <- maxdeg * 1.05
+	xlim <- c(x0 - m, x0 + m)
+	ylim <- c(y0 - m, y0 + m)
+	# Take a window out of these data
+	geomat <- window(y, xlim, ylim)
+	pt <- coords(geomat, "xy")
 	if (type == "radial") {
-		maxdist <- max(attr(x, "dist"))
-		maxdeg <- maxdist / 110.9
-		m <- maxdeg * 1.05
-		xlim <- c(x0 - m, x0 + m)
-		ylim <- c(y0 - m, y0 + m)
-		# Take a window out of these data
-		geomat <- window(y, xlim, ylim)
-		pt <- coords(geomat, "xy")
 		# Get the different groups to be used in different colors
 		pc <- polar.coords(geomat, x0, y0, maxdist)
 		# Make classes for angles and distances
@@ -155,7 +175,20 @@ angles = 0:7 * pi/4 + 0.01, n = 11, keep.origin = FALSE)
 		cols <- (2 * as.numeric(pc$dist) %% 2) + (as.numeric(pc$angle) %% 2) + 1
 		points((pt$x - x0) * 110.9, (pt$y - y0) * 110.9, pch = "+", cex = 0.5, col = cols)
 	} else { # Rectangular data
-		# TODO...
-		warning("Plot of points per sector not implemented yet for rectangular masks")
-	}
+		# Select rectangular grid sectors and look which points are in each
+		# rectangle in the geomat's grid
+		xcut <- unique(x$x) / 110.9 + x0
+		ycut <- unique(x$y) / 110.9 + y0
+		pc <- pt
+		pc$x <- cut(pc$x, breaks = xcut,  labels = 1:(length(xcut) - 1))
+		pc$y <- cut(pc$y, breaks = ycut,  labels = 1:(length(ycut) - 1))
+		# Eliminate data at origin, in case keep.origin == FALSE
+		if (!attr(x, "keep.origin"))
+			pc$x[pc$x == (length(xcut) - 1 ) %/% 2 + 1 &
+				 pc$y == (length(ycut) - 1 ) %/% 2 + 1] <- NA
+
+		# Use fours different colors
+		cols <- (2 * as.numeric(pc$x) %% 2) + (as.numeric(pc$y) %% 2) + 1
+		points((pt$x - x0) * 110.9, (pt$y - y0) * 110.9, pch = "+", cex = 0.5, col = cols)	
+	}	
 }

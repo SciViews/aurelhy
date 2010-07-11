@@ -3,6 +3,8 @@
 #   geographical localization (coordinate of top-left point and cell size)
 # * geotm is a geomat object that contains integers and is used for terrain
 #   model data (digital elevation map)
+# * geomask is a geomat object that contains logicals and is used for masking
+#   another grid like a geotm object
 
 # Create a geomat object from a matrix of numbers (reals, integers, or logicals)
 "geomat" <- function (x, size, xcenter, ycenter,

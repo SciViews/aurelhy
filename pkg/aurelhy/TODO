@@ -1,9 +1,5 @@
 = aurelhy To Do list
 
-* The update() method for the aurelhy object
-
-* Full handling of square auremasks
- 
 * Creation of a mask from a geomat and a geoshape objects
 
 * The vignette for this package

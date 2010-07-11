@@ -74,7 +74,6 @@
 }
 
 # Read a simple ESRI shapes file and format it as geopoints, or read a dbf file
-# TODO: read from .csv files
 "read.geopoints" <- function (File, format)
 {
 	# Check that format is correct

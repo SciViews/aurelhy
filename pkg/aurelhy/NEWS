@@ -1,5 +1,23 @@
 = aurelhy News
 
+== aurelhy version 1.0-0
+
+* This is the first comple version with all functions implemented!
+
+* The update() method of 'aurelhy' object is now implemented, and the example
+  is expanded to show how one can use it to explore various interpolation
+  parameters easily
+
+* plot(x, which = 7) graph for 'aurely.predict' object is now implemented
+
+* aurelhy can now also handle a rectangular grid (auremask object)
+
+* print() and plot() methods for a rectangular grid (auremask object) are now
+  implemented
+
+* auremask(type = "rectangular") calculated a grid of n-1 rectangles, corrected
+
+
 == aurelhy version 0.1-6
 
 * Complete AURELHY interpolation is implemented now for radial auremask. There

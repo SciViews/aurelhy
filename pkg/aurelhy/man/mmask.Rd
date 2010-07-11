@@ -14,9 +14,6 @@ Points in the sea are flagged as \code{NA}.
   This 'geomask' object contains a grid of 1986 x 1866 booleans masking the
   \code{morocco} terrain model.
 }
-\source{
-TODO: add source of these data.
-}
 
 \seealso{ \code{\link{geomask}}, \code{\link{morocco}} , \code{\link{mbord}}}
 

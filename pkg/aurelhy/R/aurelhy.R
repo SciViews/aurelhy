@@ -10,7 +10,6 @@
 #    A predict.aurelhy object is created that one can inspect (regression,
 #    kriging? ...). One can also convert the result into a geomat object, using
 #    the as.geomat() function
-# TODO: correct name for the variable, using var.name
 "aurelhy" <- function (geotm, geomask, auremask = auremask(), x0 = 30, y0 = 30,
 step = 12, nbr.pc = 10, scale = FALSE, model = data ~ ., vgm = vgm(1, "Sph", 10, 1),
 add.vars = NULL, var.name = NULL)
@@ -55,8 +54,11 @@ add.vars = NULL, var.name = NULL)
 	y0 <- y0 + (dropY0 * step)
 	ny <- length(Ykeep) - dropY0 - dropY1
 
-	# Make sure x0 and y0 are large enough and nx and ny are small enough to leave space around
+	# Make sure x0 and y0 are large enough and nx and ny are small enough
+	# to leave space around
 	maxdist <- max(attr(auremask, "dist"))
+	type <- attr(auremask, "type")
+	if (type == "rectangular") maxdist <- maxdist * (attr(auremask, "n") / 2)
 	maxdeg <- maxdist / 110.9
 	coords <- coords(geotm)
 	size <- coords["size"]
@@ -122,16 +124,35 @@ add.vars = NULL, var.name = NULL)
 	# Take a window out of these data
 	geotm2 <- window(geotm, xlim, ylim)
 	pt <- coords(geotm2, "xy")
-	# TODO: this is obviously only for radial mask!
-	# Get the different groups of points for each sector
-	pc <- polar.coords(geotm2, xorig, yorig, maxdist)
-	# Make classes for angles and distances
-	dists <- attr(auremask, "dist")
-	angles <- attr(auremask, "angles")
-	pc$dist <- cut(pc$dist, breaks = dists,  labels = 1:(length(dists) - 1))
-	pc$angle <- cut(pc$angle, breaks = c(angles, 8),  labels = 1:length(angles))
-	# Create a unique vector combining dist and angle to give a number to each sector
-	pc$sector <- (as.numeric(pc$dist) - 1) * length(angles) + as.numeric(pc$angle)
+	if (type == "radial") {
+		# Get the different groups of points for each sector
+		pc <- polar.coords(geotm2, xorig, yorig, maxdist)
+		# Make classes for angles and distances
+		dists <- attr(auremask, "dist")
+		angles <- attr(auremask, "angles")
+		pc$dist <- cut(pc$dist, breaks = dists,  labels = 1:(length(dists) - 1))
+		pc$angle <- cut(pc$angle, breaks = c(angles, 8),  labels = 1:length(angles))
+		# Create a unique vector combining dist and angle to give a number to each sector
+		pc$sector <- (as.numeric(pc$dist) - 1) * length(angles) + as.numeric(pc$angle)
+	} else { # For a rectangular grid
+		# Select rectangular grid sectors and look which points are in each
+		# rectangle in the geomat's grid
+		pc <- coords(geotm2, "xy")
+		xcut <- unique(auremask$x) / 110.9 + xorig
+		ycut <- unique(auremask$y) / 110.9 + yorig
+		pc$x <- cut(pc$x, breaks = xcut,  labels = 1:(length(xcut) - 1))
+		pc$y <- cut(pc$y, breaks = ycut,  labels = 1:(length(ycut) - 1))
+		# Create a unique vector combining x and y to give a number to each sector
+		pc$sector <- (as.numeric(pc$x) - 1) * (length(ycut) - 1) + as.numeric(pc$y)
+		# If we don't keep origin, eliminate it from the sectors
+		if (!attr(auremask, "keep.origin")) {
+			Center <- (length(xcut) - 1) * (length(ycut) - 1) %/% 2 + 1
+			pc$sector[pc$sector == Center] <- NA
+			toDecrement <- (pc$sector > Center)
+			toDecrement[is.na(toDecrement)] <- FALSE
+			pc$sector[toDecrement] <- pc$sector[toDecrement] - 1
+		}
+	}
 	# Create a vector of lags in x and y directions
 	cx <- nrow(geotm2) %/% 2
 	cy <- ncol(geotm2) %/% 2
@@ -139,11 +160,11 @@ add.vars = NULL, var.name = NULL)
 		y = rep(-cy:cy, each = nrow(geotm2)))
 	pc <- cbind(lags, sector = pc$sector)
 	# Keep only points that are in one sector
-	pc <- pc[!is.na(pc$sector), ]
-
+	pc <- pc[!is.na(pc$sector), ]	
 	# Calculation of landscape descriptors is done as follows:
 	# 1) Create a matrix with 0's [max(pc$sector) columns and nrow(res2) rows]
-	land <- matrix(0, nrow = nrow(res2), ncol = max(pc$sector))
+	Ncol <- length(unique(pc$sector))
+	land <- matrix(0, nrow = nrow(res2), ncol = Ncol)
 	# 2) For each row in pc, resample geotm with correct lag, apply mask, and add these
 	# elevations to the pc$sector's column of land
 	for (i in 1:nrow(pc)) {
@@ -157,14 +178,17 @@ add.vars = NULL, var.name = NULL)
 		land[, sect] <- land[, sect] + as.vector(tmlag)[mask]
 	}
 	# 3) Divide all columns by the number of points in the corresponding sector
-	div <- matrix(as.vector(table(pc$sector)), nrow = nrow(res2),
-		ncol = max(pc$sector), byrow = TRUE)
+	Npts <- as.vector(table(pc$sector))
+	# Eliminate null value (for the origin, with keep.origin == FALSE)
+	Npts <- Npts[Npts != 0]
+	div <- matrix(Npts, nrow = nrow(res2),
+		ncol = Ncol, byrow = TRUE)
 	land <- land / div
 	# 4) Substract elevation of the point (tm2) to each column
 	el <- res2$z
 	# Replace NAs (sea level) by 0's
 	el[is.na(el)] <- 0
-	el <- matrix(el, nrow = nrow(res2), ncol = max(pc$sector))
+	el <- matrix(el, nrow = nrow(res2), ncol = Ncol)
 	land <- land - el 	# That makes the landscape descriptors
 	
 	# Perform a PCA on the land data
@@ -243,11 +267,47 @@ add.vars = NULL, var.name = NULL)
 }
 
 # An update method for the aurelhy object
-"update.aurelhy" <- function (object, nbr.pc, scale, model, drop.vars, add.vars,
-var.name, ...)
+"update.aurelhy" <- function (object, nbr.pc, scale, model, vgm, ...)
 {
-	# TODO: the update method for the aurelhy object
-	stop("Not implemented yet!")
+	if (!missing(model)) attr(object, "model") <- model
+	if (!missing(vgm))  attr(object, "vgm") <- vgm
+	
+	dropPCs <- function (x) {
+		N <- names(x)
+		N <- N[!grepl("^PC[0-9+$]", N)]
+		Att$names <- N
+		return(x[, N])
+	}
+	
+	if (!missing(scale)) {
+		scale <- isTRUE(scale)
+		if (attr(object, "scale") != scale) {
+			attr(object, "scale") <- scale
+			# Redo the PCA analysis
+			pca <- prcomp(attr(object, "land"),
+				center = TRUE, scale. = scale)
+			attr(object, "pca") <- pca
+			# How many PCs do we keep?
+			if (missing(nbr.pc)) nbr.pc <- attr(object, "nbr.pc")
+			attr(object, "nbr.pc") <- nbr.pc
+			# Add the nbr.pc principal components to res
+			Att <- attributes(object)
+			res <- cbind(dropPCs(object), pca$x[, 1:nbr.pc])
+			Att$names <- names(res)
+			attributes(res) <- Att
+			return(res)
+		}
+	}
+
+	if (!missing(nbr.pc)) {
+		attr(object, "nbr.pc") <- nbr.pc
+		pca <- attr(object, "pca")
+		Att <- attributes(object)
+		res <- cbind(dropPCs(object), pca$x[, 1:nbr.pc])
+		Att$names <- names(res)
+		attributes(res) <- Att
+		return(res)
+	} else return(object)
 }
 
 "as.geomat" <- function (x, ...)
@@ -273,7 +333,6 @@ var.name, ...)
 }
 
 # Predict creates the interpolation
-# TODO: argument non.negative => take log1p(data)
 "predict.aurelhy" <- function (object, geopoints, variable, v.fit = NULL, ...)
 {
 	# Check arguments
@@ -450,8 +509,29 @@ var.name, ...)
 	} else if (which == 7) {
 		# Graph showing the various components of AURELHY interpolation
 		# versus observed values
-		# TODO...
-		stop("Not implemented yet!")
+		pr <- attr(x, "predictors")
+		X <- pr$data
+		loc <- as.numeric(rownames(pr))
+		# Sort X in increasing order according to loc
+		X <- X[order(loc)]
+		loc <- sort(loc)
+		sel <- names(x) %in% rownames(pr)
+		mod <- attr(x, "predicted")[sel]
+		krige <- attr(x, "krige.resid")[sel]
+		df <- data.frame(X = X, reg = mod, krige.resid = krige, item = loc)
+		# Create the graph
+		plot(df$X, type = "n", xlab = "", ylab = "Data",
+			ylim = c(min(df$X, df$pred), max(df$X, df$pred) * 1.1),
+			main = "Components of AURELHY prediction", xaxt = "n")
+		lines(df$reg, type = "h", col = 3)
+		xcoords <- 1:nrow(df) + 0.1
+		segments(xcoords, df$reg, xcoords, df$reg + df$krige.resid, col = 2)
+		points(xcoords - 0.05, df$X, pch = "_", col = 1)
+		axis(1, at = xcoords - 0.05, labels = df$item, las = 2)
+		legend("top", c("observed", "linear model", "kriged residuals"),
+			col = c(1, 3, 2), lty = 1, horiz = TRUE, inset = 0.02)
+		# Return the table of data invisibly
+		return(invisible(df))
 	} else stop("'which' must be between 1 and 7")
 }
 
