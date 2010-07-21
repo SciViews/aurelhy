@@ -47,7 +47,7 @@
 			res <- cbind(res, xy)
 		}
 		# Change class
-		class(res) <- c("geospoints", "data.frame")
+		class(res) <- c("geopoints", "data.frame")
 		return(res)
 	}
 	if (!inherits(x, "data.frame"))

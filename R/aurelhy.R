@@ -10,8 +10,8 @@
 #    A predict.aurelhy object is created that one can inspect (regression,
 #    kriging? ...). One can also convert the result into a geomat object, using
 #    the as.geomat() function
-"aurelhy" <- function (geotm, geomask, auremask = auremask(), x0 = 30, y0 = 30,
-step = 12, nbr.pc = 10, scale = FALSE, model = data ~ ., vgm = vgm(1, "Sph", 10, 1),
+"aurelhy" <- function (geotm, geomask, landmask = auremask(), x0 = 30, y0 = 30,
+step = 12, nbr.pc = 10, scale = FALSE, model = "data ~ .", vgmodel = vgm(1, "Sph", 10, 1),
 add.vars = NULL, var.name = NULL)
 {	
 	call <- match.call()
@@ -24,9 +24,9 @@ add.vars = NULL, var.name = NULL)
 	if (nrow(geotm) != nrow(geomask) || ncol(geotm) != ncol(geomask) ||
 		!isTRUE(all.equal(coords(geotm), coords(geomask))))
 		stop("geotm and geomask must cover exactly the same area on the same grid")
-	# Check auremask
-	if (!inherits(auremask, "auremask"))
-		stop("auremask must be an 'auremask' object")
+	# Check lanbdmask
+	if (!inherits(landmask, "auremask"))
+		stop("landmask must be an 'auremask' object")
 	# Check x0, y0, step and nbr.pc
 	x0 <- as.integer(x0)[1]
 	y0 <- as.integer(y0)[1]
@@ -56,9 +56,9 @@ add.vars = NULL, var.name = NULL)
 
 	# Make sure x0 and y0 are large enough and nx and ny are small enough
 	# to leave space around
-	maxdist <- max(attr(auremask, "dist"))
-	type <- attr(auremask, "type")
-	if (type == "rectangular") maxdist <- maxdist * (attr(auremask, "n") / 2)
+	maxdist <- max(attr(landmask, "dist"))
+	type <- attr(landmask, "type")
+	if (type == "rectangular") maxdist <- maxdist * (attr(landmask, "n") / 2)
 	maxdeg <- maxdist / 110.9
 	coords <- coords(geotm)
 	size <- coords["size"]
@@ -128,8 +128,8 @@ add.vars = NULL, var.name = NULL)
 		# Get the different groups of points for each sector
 		pc <- polar.coords(geotm2, xorig, yorig, maxdist)
 		# Make classes for angles and distances
-		dists <- attr(auremask, "dist")
-		angles <- attr(auremask, "angles")
+		dists <- attr(landmask, "dist")
+		angles <- attr(landmask, "angles")
 		pc$dist <- cut(pc$dist, breaks = dists,  labels = 1:(length(dists) - 1))
 		pc$angle <- cut(pc$angle, breaks = c(angles, 8),  labels = 1:length(angles))
 		# Create a unique vector combining dist and angle to give a number to each sector
@@ -138,14 +138,14 @@ add.vars = NULL, var.name = NULL)
 		# Select rectangular grid sectors and look which points are in each
 		# rectangle in the geomat's grid
 		pc <- coords(geotm2, "xy")
-		xcut <- unique(auremask$x) / 110.9 + xorig
-		ycut <- unique(auremask$y) / 110.9 + yorig
+		xcut <- unique(landmask$x) / 110.9 + xorig
+		ycut <- unique(landmask$y) / 110.9 + yorig
 		pc$x <- cut(pc$x, breaks = xcut,  labels = 1:(length(xcut) - 1))
 		pc$y <- cut(pc$y, breaks = ycut,  labels = 1:(length(ycut) - 1))
 		# Create a unique vector combining x and y to give a number to each sector
 		pc$sector <- (as.numeric(pc$x) - 1) * (length(ycut) - 1) + as.numeric(pc$y)
 		# If we don't keep origin, eliminate it from the sectors
-		if (!attr(auremask, "keep.origin")) {
+		if (!attr(landmask, "keep.origin")) {
 			Center <- (length(xcut) - 1) * (length(ycut) - 1) %/% 2 + 1
 			pc$sector[pc$sector == Center] <- NA
 			toDecrement <- (pc$sector > Center)
@@ -218,11 +218,11 @@ add.vars = NULL, var.name = NULL)
 	attr(res, "tm") <- tm2
 	attr(res, "mask") <- mask
 	attr(res, "land") <- land
-	attr(res, "auremask") <- auremask
+	attr(res, "auremask") <- landmask
 	attr(res, "sectors") <- pc
 	attr(res, "pca") <- pca
-	attr(res, "model") <- model
-	attr(res, "vgm") <- vgm
+	attr(res, "model") <- as.formula(model)
+	attr(res, "vgm") <- vgmodel
 	return(res)
 }
 
@@ -267,10 +267,10 @@ add.vars = NULL, var.name = NULL)
 }
 
 # An update method for the aurelhy object
-"update.aurelhy" <- function (object, nbr.pc, scale, model, vgm, ...)
+"update.aurelhy" <- function (object, nbr.pc, scale, model, vgmodel, ...)
 {
-	if (!missing(model)) attr(object, "model") <- model
-	if (!missing(vgm))  attr(object, "vgm") <- vgm
+	if (!missing(model)) attr(object, "model") <- as.formula(model)
+	if (!missing(vgmodel))  attr(object, "vgm") <- vgmodel
 	
 	dropPCs <- function (x) {
 		N <- names(x)
