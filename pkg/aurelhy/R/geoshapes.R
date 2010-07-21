@@ -58,6 +58,18 @@ type = c("polygon", "point", "polyLine"), dbf = TRUE, arcgis = FALSE, ...)
 		stop("'x' must be a 'geoshapes' object")
 
 	df <- attr(x, "shapes")
+	if (is.null(df)) {
+		# The object does not contain a shapes attribute
+		# We must reconstitute the shapes data from the object
+		n <- names(x)
+		df <- data.frame(id = character(0), x = numeric(0), y = numeric(0))
+		for (i in 1:length(n)) {
+			dat <- x[[n[i]]][, c("x", "y")]
+			dat <- data.frame(id = rep(n[i], ncol(dat)), dat,
+				stringsAsFactors = FALSE)
+			df <- rbind(df, dat)
+		}
+	}
 	colnames(df) <- c("Id", "X", "Y")
 	
 	# Convert to shapefile data

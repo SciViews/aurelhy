@@ -21,15 +21,15 @@
 }
 
 \usage{
-aurelhy(geotm, geomask, auremask = auremask(), x0 = 30, y0 = 30, step = 12,
-    nbr.pc = 10, scale = FALSE, model = data ~ ., vgm = vgm(1, "Sph", 10, 1),
+aurelhy(geotm, geomask, landmask = auremask(), x0 = 30, y0 = 30, step = 12,
+    nbr.pc = 10, scale = FALSE, model = "data ~ .", vgmodel = vgm(1, "Sph", 10, 1),
     add.vars = NULL, var.name = NULL)
 
 \method{print}{aurelhy}(x, \dots)
 \method{plot}{aurelhy}(x, y, main = "PCA on land descriptors", \dots)
 \method{points}{aurelhy}(x, pch = ".", \dots)
 \method{summary}{aurelhy}(object, \dots)
-\method{update}{aurelhy}(object, nbr.pc, scale, model, vgm, \dots)
+\method{update}{aurelhy}(object, nbr.pc, scale, model, vgmodel, \dots)
 \method{predict}{aurelhy}(object, geopoints, variable, v.fit = NULL, \dots)
 
 \method{print}{predict.aurelhy}(x, \dots)
@@ -53,7 +53,7 @@ aurelhy(geotm, geomask, auremask = auremask(), x0 = 30, y0 = 30, step = 12,
     targetted area by, at least, maximum distance of the mask in all directions
     in order to be able to calculate landscape descriptors for all considered
     points). }
-  \item{auremask}{ an 'auremask' object that defines the mask used around each
+  \item{landmask}{ an 'auremask' object that defines the mask used around each
     point ot calculate its landscape descriptors. }
   \item{x0}{ shift in X direction (longitude) where to consider the first
     point of the interpolation grid (note that interpolation grid must be less
@@ -76,7 +76,7 @@ aurelhy(geotm, geomask, auremask = auremask(), x0 = 30, y0 = 30, step = 12,
     left-hand side of the formula must always be 'data' and the right-hand
     considers all predictors spearated by a plus sign. To use all predictors,
     specify \code{data ~ .} (by default). }
-  \item{vgm}{ the variogram model to fit, as defined by the \code{vgm()}
+  \item{vgmodel}{ the variogram model to fit, as defined by the \code{vgm()}
     function of the gstat package }
   \item{add.vars}{ additional variable(s) measured at the same points as the
     final interpolation grid. They will be used as additional predictors. The
@@ -149,7 +149,7 @@ lines(mbord, col = "red") # Add administrative borders in red
 # The variogram model is kept simple here, see ?vgm for other choices
 # Be patient... this takes a little time to calculate!
 maurelhy <- aurelhy(morocco, mmask, auremask(), x0 = 30, y0 = 54, step = 12,
-    scale = TRUE, nbr.pc = 10, vgm = vgm(100, "Sph", 1, 1),
+    scale = TRUE, nbr.pc = 10, vgmodel = vgm(100, "Sph", 1, 1),
     add.vars = mseadist, var.name = "seadist")    
 maurelhy
 points(maurelhy) # Add the interpolated points on the map
@@ -239,7 +239,7 @@ filled.contour(coords(geomrain, "x"), coords(geomrain, "y"), geomrain,
 # are reused (not the use of I() to protect calcs inside a formula)!
 maurelhy2 <- update(maurelhy, scale = FALSE, nbr.pc = 7,
   model = data ~ x + y + z + PC3 + PC6 + PC7 + seadist + I(seadist^2),
-  vgm = vgm(100, "Gau", 1, 1))
+  vgmodel = vgm(100, "Gau", 1, 1))
 maurelhy2
 
 # Diagnostic of the new PCA on land descriptors without scaling

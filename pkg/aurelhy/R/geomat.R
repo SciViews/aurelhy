@@ -37,7 +37,7 @@ datatype = c("numeric", "integer", "logical"), nodata = NA)
 coords = c(size = size, x = xcenter, y = ycenter))
 {
 	res <- geomat(x = x, coords = coords, datatype = "integer")
-	class(res) <- c("geotm", class(res))
+	class(res) <- c("geotm", "geomat", "matrix")
 	return(res)
 }
 
@@ -46,7 +46,7 @@ coords = c(size = size, x = xcenter, y = ycenter))
 coords = c(size = size, x = xcenter, y = ycenter))
 {
 	res <- geomat(x = x, coords = coords, datatype = "logical")
-	class(res) <- c("geomask", class(res))
+	class(res) <- c("geomask", "geomat", "matrix")
 	return(res)
 }
 
@@ -120,7 +120,7 @@ datatype = c("numeric", "integer", "logical"), ...)
 	# Delegate to read.geomat()
 	res <- read.geomat(file = file, type = type, datatype = "integer", ...)
 	# Only the class is different
-	class(res) <- c("geotm", class(res))
+	class(res) <- c("geotm", "geomat", "matrix")
 	return(res)
 }
 
@@ -131,9 +131,11 @@ datatype = c("numeric", "integer", "logical"), ...)
 	# Delegate to read.geomat() to read integers
 	# and then, apply the threshold to calculate TRUE/FALSE values
 	res <- read.geomat(file = file, type = type, datatype = "integer", ...)
+	crd <- attr(res, "coords")
 	res <- res > as.integer(threshold)[1]
 	# The class is different
-	class(res) <- c("geomask", class(res))
+	attr(res, "coords") <- crd
+	class(res) <- c("geomask", "geomat", "matrix")
 	return(res)
 }
 

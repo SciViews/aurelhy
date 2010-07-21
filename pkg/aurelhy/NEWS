@@ -1,5 +1,24 @@
 = aurelhy News
 
+== aurelhy version 1.0-1
+
+* If a geoshapes object had no "shapes" attribute (like the 'mbord' example
+  dataset), write.geoshapes() failed. Now the "shapes" data are reconstructed
+  from the object itself, if missing.
+
+* geopoints() incorrectly returned a 'geospoints' object. Corrected.
+
+* read.geomask() returned an object of class c('geomask', 'matrix'), instead of
+  c('geomask', 'geomat', 'matrix'). Corrected.
+
+* read.geomask() lost the 'coords' attribute. Corrected.
+
+* aurelhy() had sometimes a problem of recursive argument because of
+  auremask = auremask(). The argument is renamed landmask. = auremask(); same
+  for vgm = vgm() renamed vgmodel = vgm(). Idem in update() method. Finally,
+  the regression model is now provided as a string instead than as a formula.
+
+
 == aurelhy version 1.0-0
 
 * This is the first comple version with all functions implemented!
