@@ -23,7 +23,7 @@
 \usage{
 aurelhy(geotm, geomask, landmask = auremask(), x0 = 30, y0 = 30, step = 12,
     nbr.pc = 10, scale = FALSE, model = "data ~ .", vgmodel = vgm(1, "Sph", 10, 1),
-    add.vars = NULL, var.name = NULL)
+    add.vars = NULL, var.name = NULL, resample.geomask = TRUE)
 
 \method{print}{aurelhy}(x, \dots)
 \method{plot}{aurelhy}(x, y, main = "PCA on land descriptors", \dots)
@@ -85,6 +85,12 @@ aurelhy(geotm, geomask, landmask = auremask(), x0 = 30, y0 = 30, step = 12,
     variables will be used. }
   \item{var.name}{ if \code{add.vars} is a 'geomat' object, you can give the
     name you want to use for this predictor here. }
+  \item{resample.geomask}{ do we resample the geomask using \code{x0}, \code{y0}
+    and \code{step} to get the final mask of calculated points? If \code{TRUE}
+    (by default), geomask should have the same grid as geotm. Otherwise, the
+    geomask must exactly match the points where aurelhy should perform the
+    interpolation. The default value allows for a backward-compatible behaviour
+    of the function (aurelhy version =< 1.0-2). }
   \item{x}{ an 'aurelhy' or 'predict.aurelhy' object, depending on the method invoked }
   \item{y}{ a 'geopoints' object to create a plot best depicting the
     interpolation process, or nothing to just plot the interpolation grid. }
