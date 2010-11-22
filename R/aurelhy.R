@@ -12,7 +12,7 @@
 #    the as.geomat() function
 "aurelhy" <- function (geotm, geomask, landmask = auremask(), x0 = 30, y0 = 30,
 step = 12, nbr.pc = 10, scale = FALSE, model = "data ~ .", vgmodel = vgm(1, "Sph", 10, 1),
-add.vars = NULL, var.name = NULL)
+add.vars = NULL, var.name = NULL, resample.geomask = TRUE)
 {	
 	call <- match.call()
 	
@@ -37,7 +37,9 @@ add.vars = NULL, var.name = NULL)
 	
 	# Resample the geomask and determine which points to keep
 	geomask[is.na(geomask)] <- FALSE
-	mask <- resample(geomask, x0 = x0, y0 = y0, step = step)
+	if (isTRUE(resample.geomask)) {
+		mask <- resample(geomask, x0 = x0, y0 = y0, step = step)
+	} else mask <- geomask  # The correct mask is provided immediately
 	# Restrict the area covered by tm2 and mask according to selected points
 	Xkeep <- apply(mask, 1, any)
 	Ykeep <- apply(mask, 2, any)
@@ -378,12 +380,12 @@ add.vars = NULL, var.name = NULL)
 		if (isTRUE(topX)) XoutC <- ceiling(Xout) + 1 else XoutC <- floor(Xout) + 1
 		if (isTRUE(topY)) YoutC <- ceiling(Yout) + 1 else YoutC <- floor(Yout) + 1
 		OKc <- diag(mask[XoutC, YoutC])
-		if (any(OKc)) {
+		if (any(as.logical(OKc))) {
 			nOKc <- nOK
 			nOKc[nOKc] <- OKc
-			df$Xind[nOKc] <- XoutC[OKc]
-			df$Yind[nOKc] <- YoutC[OKc]
-			df$OK[nOKc] <- TRUE
+			df$Xind[which(nOKc == 1)] <- XoutC[OKc]
+			df$Yind[which(nOKc == 1)] <- YoutC[OKc]
+			df$OK[which(nOKc == 1)] <- TRUE
 		}
 		return(df)
 	}

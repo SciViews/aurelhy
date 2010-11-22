@@ -1,5 +1,23 @@
 = aurelhy News
 
+== aurelhy version 1.0-3
+
+* A bug in predict.aurelhy() (function checkCorner()) sometimes prevented
+  correct selection of the closest corner in the DEM when a station is not
+  exactly on a node, but very close to it (thanks Francois Delobel for the
+  patch).
+
+* A new argument in aurelhy(), resample.geomask indicate if the geomask object
+  should be resampled (provided with same grid af the geomat object), or not,
+  (provided with same grid as final interpolation).
+
+
+== aurelhy version 1.0-2
+
+* A warning about coercion of double to logical in predict.aurelhy() is solved
+  (the coercion was intended, but as it was implicit, R generated the warning)
+
+
 == aurelhy version 1.0-1
 
 * If a geoshapes object had no "shapes" attribute (like the 'mbord' example
