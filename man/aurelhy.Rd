@@ -139,15 +139,15 @@ aurelhy(geotm, geomask, landmask = auremask(), x0 = 30, y0 = 30, step = 12,
 \examples{
 # Create an aurelhy object for the Morocco terrain data
 data(morocco)  # The terrain model with a grid of about 924x924m
-data(mbord)    # A shape with Morocco's border
-data(mmask)    # A 924x924m grid with a mask covering Morocco's territory
-data(mseadist) # The distance to the sea for Morocco's territory
+data(mbord)    # A shape with the area around Morocco to analyze
+data(mmask)    # A 924x924m grid with a mask covering territory to analyze
+data(mseadist) # The distance to the sea for territory to analyze
 data(mrain)    # Rain data measured at 43 stations to be interpolated
 
 # Create a map with these data
 image(morocco) # Plot the terrain model
 grid()
-lines(mbord, col = "red") # Add administrative borders in red
+lines(mbord, col = "red") # Add borders of territory to analyze in red
 
 # Make sure we use all the stations from mrain in the geomask
 mmask2 <- add.points(mmask, mrain)
@@ -169,7 +169,7 @@ points(mrain, col = "red") # Add location of weather stations in red
 summary(maurelhy)
 plot(maurelhy)
 
-# Interpolate 'rain' variable on the whole Morocco territory
+# Interpolate 'rain' variable on the considered territory around Morocco
 # Since we do not want negative values for this variable and it is log-normally
 # distributed, we will interpolate log10(rain) instead
 mrain$logRain <- log10(mrain$rain)
