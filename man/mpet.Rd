@@ -1,5 +1,4 @@
 \name{mpet}
-\Rdversion{1.1}
 \alias{mpet}
 \non_function{}
 \title{ A geopoints object with PET values measured at different weather stations }

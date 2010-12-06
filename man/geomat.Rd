@@ -1,5 +1,4 @@
 \name{geomat}
-\Rdversion{1.1}
 \alias{as.geomat}
 \alias{geomat}
 \alias{geotm}

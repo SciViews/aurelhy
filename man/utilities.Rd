@@ -1,9 +1,11 @@
 \name{aurelhy-utilities}
-\Rdversion{1.1}
 \alias{polar.coords}
 \alias{match.coords}
 \alias{coords}
 \alias{resample}
+\alias{add.points}
+\alias{add.points.geomask}
+\alias{dist2sea}
 
 \title{Various utilities functions for AURELHY}
 
@@ -17,11 +19,15 @@ polar.coords(geomat, x, y, maxdist)
 match.coords(points, table, tol = 0.002)
 coords(x, \dots)
 resample(x, \dots)
+add.points(x, \dots)
+\method{add.points}{geomask}(x, geopoints, \dots)
+dist2sea(geotm)
 }
 
 \arguments{
   \item{geomat}{ a 'geomat' object }
-  \item{x}{ X coordinate of the reference point }
+  \item{x}{ X coordinate of the reference point for \code{polar.coords()}, or
+    a correct object for the other functions }
   \item{y}{ Y coordinate of the reference point }
   \item{maxdist}{ maximum distance to consider in km. All points whose distance
     from the reference point is larger are not considered in the calculation }
@@ -33,6 +39,9 @@ resample(x, \dots)
   \item{tol}{ the maximum tolerance in X and Y units to consider points are
     matching, that is, X +/- tol = X(ref) and Y +/- tol = Y(ref) }
   \item{\dots}{ further arguments passed to the method }
+  \item{geopoints}{ a geopoints object from which we want to add corresponding
+    points in a geomask }
+  \item{geotm}{ a geotm object }
 }
 
 \details{
@@ -43,6 +52,9 @@ resample(x, \dots)
   \code{coords()} is a generic function that extracts geographical coordinates
   from one object in different fashions.
   \code{resample} is a generic function to resample a grid ('geomat' object).
+  \code{add.points} add points from a geopoints object in a geomask.
+  \code{dist2sea()} calculate the distance of points in a geotm object to the
+  sea.
 }
 
 \value{
@@ -57,7 +69,8 @@ resample(x, \dots)
 }
 
 \author{
-  Philippe Grosjean <phgrosjean@sciviews.org>
+  Philippe Grosjean <phgrosjean@sciviews.org>, and Francois Delobel for
+  \code{dist2sea()}
 }
 
 \seealso{ \code{\link{geomat}}, \code{\link{auremask}} }

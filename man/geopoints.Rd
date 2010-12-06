@@ -1,5 +1,4 @@
 \name{geopoints}
-\Rdversion{1.1}
 \alias{geopoints}
 \alias{read.geopoints}
 \alias{write.geopoints}

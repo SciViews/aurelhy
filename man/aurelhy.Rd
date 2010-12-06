@@ -1,5 +1,4 @@
 \name{aurelhy}
-\Rdversion{1.1}
 \alias{aurelhy}
 \alias{as.geomat.aurelhy}
 \alias{print.aurelhy}
@@ -48,13 +47,13 @@ aurelhy(geotm, geomask, landmask = auremask(), x0 = 30, y0 = 30, step = 12,
     \code{plot()} methods of an 'auremask' object used to calculate landscape
     descriptors to check your terrain model is dense enough). }
   \item{geomask}{ a 'geomask' object with same resolution and coverage of the
-    'geotm' object, and indicating which points should be considered for the
-    interpolation (note that your terrain model must be larger than the
-    targetted area by, at least, maximum distance of the mask in all directions
-    in order to be able to calculate landscape descriptors for all considered
-    points). }
-  \item{landmask}{ an 'auremask' object that defines the mask used around each
-    point ot calculate its landscape descriptors. }
+    'geotm' object or the final interpolation grid (with \code{resample.geomask = FALSE}),
+    and indicating which points should be considered for the interpolation (note
+    that your terrain model must be larger than the targetted area by, at least,
+    maximum distance of the mask in all directions in order to be able to
+    calculate landscape descriptors for all considered points). }
+  \item{landmask}{ an 'auremask' object that defines the window of analysis used
+    around each point ot calculate its landscape descriptors. }
   \item{x0}{ shift in X direction (longitude) where to consider the first
     point of the interpolation grid (note that interpolation grid must be less
     dense or equal to the terrain model grid, depending on the mask used). }
@@ -79,10 +78,10 @@ aurelhy(geotm, geomask, landmask = auremask(), x0 = 30, y0 = 30, step = 12,
   \item{vgmodel}{ the variogram model to fit, as defined by the \code{vgm()}
     function of the gstat package }
   \item{add.vars}{ additional variable(s) measured at the same points as the
-    final interpolation grid. They will be used as additional predictors. The
-    example show you how you can add or remove such variables after the
-    'aurelhy' object is calculated. If \code{NULL} (by default), no additional
-    variables will be used. }
+    geotm object, or the final interpolation grid. They will be used as
+    additional predictors. The example show you how you can add or remove such
+    variables after the 'aurelhy' object is calculated. If \code{NULL} (by
+    default), no additional variables will be used. }
   \item{var.name}{ if \code{add.vars} is a 'geomat' object, you can give the
     name you want to use for this predictor here. }
   \item{resample.geomask}{ do we resample the geomask using \code{x0}, \code{y0}
@@ -102,7 +101,9 @@ aurelhy(geotm, geomask, landmask = auremask(), x0 = 30, y0 = 30, step = 12,
   \item{variable}{ the name of the variable in the 'geopoints' object to interpolate }
   \item{v.fit}{ the fitted variogram model used to krige residuals. If \code{NULL}
     (by default), a fitted model for the variogram is calculated, starting from the
-    model provided in the 'aurelhy' object, 'vgm' slot }
+    model provided in the 'aurelhy' object, 'vgm' slot. If \code{FALSE}, residuals
+    are not kriged (useful, e.g., to save calculation time when one look for
+    best predictors in the regression) }
   \item{which}{ which graph to plot }
   \item{what}{ what is extracted as a 'geomat' object }
   \item{nodata}{ the code used to represent missing data in the 'geomat' object }
@@ -148,13 +149,16 @@ image(morocco) # Plot the terrain model
 grid()
 lines(mbord, col = "red") # Add administrative borders in red
 
+# Make sure we use all the stations from mrain in the geomask
+mmask2 <- add.points(mmask, mrain)
+
 # Now, create an aurelhy object with landscape description, using the
 # first ten PCs, plus the distance to the sea (mseadist) for prediction
-# Use a default radial mask of 26km as maximum distance
+# Use a default radial window of analysis of 26km as maximum distance
 # and an interpolation grid of 0.1x0.1degrees (roughly 11x11km)
 # The variogram model is kept simple here, see ?vgm for other choices
 # Be patient... this takes a little time to calculate!
-maurelhy <- aurelhy(morocco, mmask, auremask(), x0 = 30, y0 = 54, step = 12,
+maurelhy <- aurelhy(morocco, mmask2, auremask(), x0 = 30, y0 = 54, step = 12,
     scale = TRUE, nbr.pc = 10, vgmodel = vgm(100, "Sph", 1, 1),
     add.vars = mseadist, var.name = "seadist")    
 maurelhy
@@ -261,7 +265,7 @@ plot(pmrain2, which = 1) # Residuals versus fitted (how residuals spread?)
 plot(pmrain, which = 6) # Semi-variogram and adjusted model
 plot(pmrain2, which = 7) # Model prediction and kriged residuals
 
-#... Explore as much as you like until you find the set of parameters the suits you!
+#... Explore as much as you like until you find the set of parameters that suits you!
 }
 
 \keyword{utilities}

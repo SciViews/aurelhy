@@ -1,5 +1,4 @@
 \name{mrain}
-\Rdversion{1.1}
 \alias{mrain}
 \non_function{}
 \title{ A geopoints object with normalized rain values (mm) measured
