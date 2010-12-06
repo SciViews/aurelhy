@@ -1,5 +1,4 @@
 \name{mmask}
-\Rdversion{1.1}
 \alias{mmask}
 \non_function{}
 \title{ A geomask object masking the Morocco terrain model }

@@ -1,5 +1,4 @@
 \name{morocco}
-\Rdversion{1.1}
 \alias{morocco}
 \non_function{}
 \title{ A digital elevation model with a grid of roughly 1km x 1km of Morocco }

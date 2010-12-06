@@ -1,5 +1,4 @@
 \name{mbord}
-\Rdversion{1.1}
 \alias{mbord}
 \non_function{}
 \title{ A geoshapes object with a polygon of the Morocco borders }

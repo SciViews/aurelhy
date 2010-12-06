@@ -58,7 +58,7 @@ angles = 0:7 * pi/4 + 0.01, n = 11, keep.origin = FALSE)
 	orig.mes <-
 		if (attr(x, "keep.origin")) "including origin" else "excluding origin"
 	if (type == "radial") {
-		cat("The mask uses", nrow(x), "points", orig.mes, "\n")
+		cat("The window of analysis uses", nrow(x), "points", orig.mes, "\n")
 		cat("Distance considered (km):\n")
 		print(attr(x, "dist"))
 		cat("... at angles (rad):\n")
@@ -67,8 +67,8 @@ angles = 0:7 * pi/4 + 0.01, n = 11, keep.origin = FALSE)
 		n <- attr(x, "n")
 		ntot <- n*n
 		if (!attr(x, "keep.origin")) ntot <- ntot - 1
-		cat("The mask uses", ntot, "points", orig.mes, "\n")
-		cat("The mask uses", n, "distances spaced each by",
+		cat("The window of analysis uses", ntot, "points", orig.mes, "\n")
+		cat("The window uses", n, "distances spaced each by",
 			attr(x, "dist"), "km\n")
 	}
 	# If we provide a geomat, look at how many points are in each sector

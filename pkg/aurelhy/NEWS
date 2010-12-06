@@ -1,5 +1,17 @@
 = aurelhy News
 
+== aurelhy version 1.0-4
+
+* Added a function dist2sea() by Francois Delobel.
+
+* More flexibility in the size of add.vars: can be on same grid as geotm, or
+  same grid as the final landscape descriptors.
+
+* To avoid confusion between the mask used to determine which points to
+  consider and the mask used to select sectors for landscape predictors
+  calculation, the latter one is renamed "window of analysis".
+
+
 == aurelhy version 1.0-3
 
 * A bug in predict.aurelhy() (function checkCorner()) sometimes prevented
@@ -10,6 +22,17 @@
 * A new argument in aurelhy(), resample.geomask indicate if the geomask object
   should be resampled (provided with same grid af the geomat object), or not,
   (provided with same grid as final interpolation).
+  
+* predict.aurelhy() can now accept argument v.fit = FALSE. In this case,
+  residuals are not kriged. This saves computation when kriging is not required,
+  e.g., when one look for best predictors in the regression. All methods appled
+  to predict.aurelhy objects are adapted to cope with objects that do not have
+  kriged residuals recorded.
+  
+* add.points() generic function added, and method for geomask: adds points
+  that are outside of a geomask, but inside of the gris from a geopoints
+  object. It allows to add stations that are close to, but outside the area of
+  interest (useful for correct kriging of the residuals).
 
 
 == aurelhy version 1.0-2

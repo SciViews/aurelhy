@@ -1,27 +1,29 @@
 import(stats, graphics, gstat)
 
-export(as.geomat,
-	   aurelhy,
-	   auremask,
+export(add.points,
+       as.geomat,
+       aurelhy,
+       auremask,
        coords,
-	   geomask,
-	   geomat,
-	   geopoints,
-	   geoshapes,
-	   geotm,
-	   match.coords,
+       dist2sea,
+       geomask,
+       geomat,
+       geopoints,
+       geoshapes,
+       geotm,
+       match.coords,
        polar.coords,
-	   read.geomask,
-	   read.geomat,
-	   read.geopoints,
-	   read.geoshapes,
-	   read.geotm,
-	   resample,
-	   write.geomask,
-	   write.geomat,
-	   write.geopoints,
-	   write.geoshapes,
-	   write.geotm)
+       read.geomask,
+       read.geomat,
+       read.geopoints,
+       read.geoshapes,
+       read.geotm,
+       resample,
+       write.geomask,
+       write.geomat,
+       write.geopoints,
+       write.geoshapes,
+       write.geotm)
 
 S3method(plot, aurelhy)
 S3method(points, aurelhy)
@@ -49,6 +51,7 @@ S3method(resample, geomat)
 S3method(window, geomat)
 
 S3method(image, geomask)
+S3method(add.points, geomask)
 
 S3method(print, geopoints)
 S3method(points, geopoints)

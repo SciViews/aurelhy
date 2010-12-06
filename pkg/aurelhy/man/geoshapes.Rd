@@ -1,5 +1,4 @@
 \name{geoshapes}
-\Rdversion{1.1}
 \alias{geoshapes}
 \alias{read.geoshapes}
 \alias{write.geoshapes}

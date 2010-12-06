@@ -21,10 +21,11 @@ add.vars = NULL, var.name = NULL, resample.geomask = TRUE)
 		stop("geotm must be a 'geotm' object")
 	if (!inherits(geomask, "geomask"))
 		stop("geomask must be a 'geomask' object")
-	if (nrow(geotm) != nrow(geomask) || ncol(geotm) != ncol(geomask) ||
-		!isTRUE(all.equal(coords(geotm), coords(geomask))))
+	if (isTRUE(resample.geomask) && (nrow(geotm) != nrow(geomask) ||
+		ncol(geotm) != ncol(geomask) ||
+		!isTRUE(all.equal(coords(geotm), coords(geomask)))))
 		stop("geotm and geomask must cover exactly the same area on the same grid")
-	# Check lanbdmask
+	# Check landmask
 	if (!inherits(landmask, "auremask"))
 		stop("landmask must be an 'auremask' object")
 	# Check x0, y0, step and nbr.pc
@@ -76,8 +77,16 @@ add.vars = NULL, var.name = NULL, resample.geomask = TRUE)
 	
 	# Resample geotm and mask using these new limits
 	# and calculate coordinates of points where to define landscape
-	mask <- resample(geomask, x0 = x0, y0 = y0, step = step, nx = nx, ny = ny, strict = TRUE)
 	tm2 <- resample(geotm, x0 = x0, y0 = y0, step = step, nx = nx, ny = ny, strict = TRUE)
+	crd <- coords(tm2)
+	xlim <- c(crd["x1"], crd["x2"])
+	ylim <- c(crd["y1"], crd["y2"])
+	if (isTRUE(resample.geomask)) {
+		mask <- resample(geomask, x0 = x0, y0 = y0, step = step,
+			nx = nx, ny = ny, strict = TRUE)
+	} else {
+		mask <- window(geomask, xlim = xlim, ylim = ylim)
+	}
 	res <- coords(tm2, "xy")
 	Xsize <- nrow(tm2)
 	Ysize <- ncol(tm2)
@@ -85,11 +94,21 @@ add.vars = NULL, var.name = NULL, resample.geomask = TRUE)
 	# Shouldn't we average elevation around these points???
 	res$z <- as.vector(tm2)
 	
-	# Before further calculating, check that add.vars matches nrow(res)
+	# Before further calculating, check (or rework) add.vars
 	if (!is.null(add.vars)) {
 		# add.vars can be a geomat => check dimensions
-		#and transform into a column data frame
+		# and transform into a column data frame
 		if (inherits(add.vars, "geomat")) {
+			# Do we need to resample add.vars?
+			if (isTRUE(all.equal(coords(geotm), coords(add.vars)))) {
+				# add.vars is provided on same grid as geotm
+				add.vars <- resample(add.vars, x0 = x0, y0 = y0, step = step,
+					nx = nx, ny = ny, strict = TRUE)
+			} else {
+				# Take a window in add.vars of the correct size
+				add.vars <- window(add.vars, xlim = xlim, ylim = ylim)
+			}
+			
 			if (dim(add.vars) != dim(tm2) ||
 				!isTRUE(all.equal(coords(add.vars), coords(tm2),
 					tolerance = coords(tm2)["size"] / 2))) {
@@ -418,30 +437,34 @@ add.vars = NULL, var.name = NULL, resample.geomask = TRUE)
 	cat("[adjusted R-squared is ",
 		round(summary(lmod)$adj.r.squared, digits = 3), "]\n", sep = "")
 
-	# Adjust the semi-variogram with the model
-	vgm <- attr(object, "vgm") # The variogram model to use
-	Pred <- pred
-	coordinates(Pred) <- ~ x + y
-	v <- variogram(resid ~ x + y, Pred)
-	if (is.null(v.fit)) # Fit the variogram model now, if not provided
-		v.fit <- fit.variogram(v, vgm)
+	if (!identical(v.fit, FALSE)) {
+		# Adjust the semi-variogram with the model
+		vgm <- attr(object, "vgm") # The variogram model to use
+		Pred <- pred
+		coordinates(Pred) <- ~ x + y
+		v <- variogram(resid ~ x + y, Pred)
+		if (is.null(v.fit)) # Fit the variogram model now, if not provided
+			v.fit <- fit.variogram(v, vgm)
 
-	# Krige residuals using this fitted variogram model
-	# Note that krige method of gstat can only apply on rectangular areas
-	# so, we need to krige on the whole bounding box, and then, select
-	# points of interest using the mask
-	Pred.grid <- coords(Mask, "xy")
-	gridded(Pred.grid) <- ~ x + y
-	k <- krige(resid ~ x + y, Pred, Pred.grid, model = v.fit)
-	# Extract krigged residuals and keep only those corresponding to the mask
-	k.resid <- k["var1.pred"]@data[Mask]
-	names(k.resid) <- names(grid.mod)
-	# Also extract kriging variance
-	k.var <- k["var1.var"]@data[Mask]
-	names(k.var) <- names(grid.mod)
-	# The final result is the sum of the value predicted by the model (grid.mod)
-	# and the kriged residuals (k.resid)
-	res <- grid.mod + k.resid
+		# Krige residuals using this fitted variogram model
+		# Note that krige method of gstat can only apply on rectangular areas
+		# so, we need to krige on the whole bounding box, and then, select
+		# points of interest using the mask
+		Pred.grid <- coords(Mask, "xy")
+		gridded(Pred.grid) <- ~ x + y
+		k <- krige(resid ~ x + y, Pred, Pred.grid, model = v.fit)
+		# Extract krigged residuals and keep only those corresponding to the mask
+		k.resid <- k["var1.pred"]@data[Mask]
+		names(k.resid) <- names(grid.mod)
+		# Also extract kriging variance
+		k.var <- k["var1.var"]@data[Mask]
+		names(k.var) <- names(grid.mod)
+		# The final result is the sum of the value predicted by the model (grid.mod)
+		# and the kriged residuals (k.resid)
+		res <- grid.mod + k.resid
+	} else { # Don't use kriged residuals
+		res <- grid.mod
+	}
 
 	# Construct a predict.aurelhy object
 	attr(res, "variable") <- variable
@@ -450,12 +473,14 @@ add.vars = NULL, var.name = NULL, resample.geomask = TRUE)
 	attr(res, "model") <- model
 	attr(res, "lm") <- lmod
 	attr(res, "predicted") <- grid.mod
-	attr(res, "vgm") <- vgm
-	attr(res, "variogram") <- v
-	attr(res, "v.fit") <- v.fit
-	attr(res, "df") <- df
-	attr(res, "krige.resid") <- k.resid
-	attr(res, "krige.resid.var") <- k.var
+	if (!identical(v.fit, FALSE)) {
+		attr(res, "vgm") <- vgm
+		attr(res, "variogram") <- v
+		attr(res, "v.fit") <- v.fit
+		attr(res, "df") <- df
+		attr(res, "krige.resid") <- k.resid
+		attr(res, "krige.resid.var") <- k.var
+	} else attr(res, "v.fit") <- FALSE
 	class(res) <- c("predict.aurelhy", "data.frame")	
 	return(res)
 }
@@ -477,10 +502,13 @@ add.vars = NULL, var.name = NULL, resample.geomask = TRUE)
 	print(summary(attr(x, "predicted")))
 	cat("Residuals on provided predictors are distributed as follows:\n")
 	print(summary(attr(x, "predictors")$resid))
-	cat("\nVariogram model for universal kriging of the residuals is:\n")
-	print(attr(x, "v.fit"))
-	cat("Kriged residuals are distributed as follows:\n")
-	print(summary(attr(x, "krige.resid")))
+	
+	if (!identical(attr(x, "v.fit"), FALSE)) {
+		cat("\nVariogram model for universal kriging of the residuals is:\n")
+		print(attr(x, "v.fit"))
+		cat("Kriged residuals are distributed as follows:\n")
+		print(summary(attr(x, "krige.resid")))
+	} else cat("Residuals were not kriged!\n")
 	cat("\nInterpolated values for '", attr(x, "variable"),
 		"' are distributed as follows:\n", sep = "")
 	print(summary(as.numeric(x)))
@@ -501,8 +529,10 @@ add.vars = NULL, var.name = NULL, resample.geomask = TRUE)
 		plot(attr(x, "lm"), which = which, ...)
 	} else if (which == 6) {
 		# This is the variogram model
-		v <- attr(x, "variogram")
 		v.fit <- attr(x, "v.fit")
+		if (identical(v.fit, FALSE))
+			stop("No krighed residuals for this object!")
+		v <- attr(x, "variogram")
 		v.model <- variogramLine(v.fit, max(v$dist), 50)
 		plot(gamma ~ dist, data = v, xlab = "distance", ylab = "semivariance",
 			ylim = c(0, max(v$gamma)),
@@ -511,6 +541,8 @@ add.vars = NULL, var.name = NULL, resample.geomask = TRUE)
 	} else if (which == 7) {
 		# Graph showing the various components of AURELHY interpolation
 		# versus observed values
+		# Do we have kriged residuals?
+		is.kriged <- !identical(attr(x, "v.fit"), FALSE)
 		pr <- attr(x, "predictors")
 		X <- pr$data
 		loc <- as.numeric(rownames(pr))
@@ -519,7 +551,11 @@ add.vars = NULL, var.name = NULL, resample.geomask = TRUE)
 		loc <- sort(loc)
 		sel <- names(x) %in% rownames(pr)
 		mod <- attr(x, "predicted")[sel]
-		krige <- attr(x, "krige.resid")[sel]
+		if (is.kriged) {
+			krige <- attr(x, "krige.resid")[sel]
+		} else {
+			krige <- rep(NA, length(mod))
+		}
 		df <- data.frame(X = X, reg = mod, krige.resid = krige, item = loc)
 		# Create the graph
 		plot(df$X, type = "n", xlab = "", ylab = "Data",
@@ -527,11 +563,18 @@ add.vars = NULL, var.name = NULL, resample.geomask = TRUE)
 			main = "Components of AURELHY prediction", xaxt = "n")
 		lines(df$reg, type = "h", col = 3)
 		xcoords <- 1:nrow(df) + 0.1
-		segments(xcoords, df$reg, xcoords, df$reg + df$krige.resid, col = 2)
+		if (is.kriged) {
+			segments(xcoords, df$reg, xcoords, df$reg + df$krige.resid, col = 2)
+		}
 		points(xcoords - 0.05, df$X, pch = "_", col = 1)
 		axis(1, at = xcoords - 0.05, labels = df$item, las = 2)
-		legend("top", c("observed", "linear model", "kriged residuals"),
-			col = c(1, 3, 2), lty = 1, horiz = TRUE, inset = 0.02)
+		if (is.kriged) {
+			legend("top", c("observed", "linear model", "kriged residuals"),
+				col = c(1, 3, 2), lty = 1, horiz = TRUE, inset = 0.02)
+		} else {
+			legend("top", c("observed", "linear model"),
+				col = c(1, 3), lty = 1, horiz = TRUE, inset = 0.02)	
+		}
 		# Return the table of data invisibly
 		return(invisible(df))
 	} else stop("'which' must be between 1 and 7")
@@ -543,6 +586,9 @@ add.vars = NULL, var.name = NULL, resample.geomask = TRUE)
 {
 	# We extract either interpolated, predicted, or kriged residuals or variance
 	what <- match.arg(what)
+	# KrigeResiduals and KrigeVariance only allowed if residuals were kriged!
+	if (identical(attr(x, "v.fit"), FALSE) && what %in% c("KrigedResiduals", "KrigeVariance"))
+		stop("Impossible to extract krigeage data from an object where residuals were not kriged")
 	dat <- switch(what,
 		Interpolated = as.numeric(x),
 		Predicted = as.numeric(attr(x, "predicted")),
