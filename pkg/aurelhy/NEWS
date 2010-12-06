@@ -10,6 +10,10 @@
 * To avoid confusion between the mask used to determine which points to
   consider and the mask used to select sectors for landscape predictors
   calculation, the latter one is renamed "window of analysis".
+  
+* mbord and mmask data are not strictly Morocco territory, but a landscape
+  around Morocco that is the target of the example analysis. Corresponding
+  help pages are modified accordingly.
 
 
 == aurelhy version 1.0-3
