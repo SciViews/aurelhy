@@ -1,5 +1,5 @@
-#LyX 1.6.5 created this file. For more info see http://www.lyx.org/
-\lyxformat 345
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
 \begin_document
 \begin_header
 \textclass article
@@ -13,20 +13,28 @@
 \end_preamble
 \use_default_options false
 \begin_modules
-sweave
+svSweave
 \end_modules
+\maintain_unincluded_children false
 \language english
+\language_package default
 \inputencoding auto
+\fontencoding global
 \font_roman palatino
 \font_sans berasans
 \font_typewriter beramono
 \font_default_family default
+\use_non_tex_fonts false
 \font_sc true
 \font_osf false
 \font_sf_scale 100
 \font_tt_scale 100
 
 \graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
 \float_placement tbh
 \paperfontsize default
 \spacing single
@@ -49,13 +57,22 @@ sweave
 \use_geometry false
 \use_amsmath 0
 \use_esint 0
+\use_mhchem 1
+\use_mathdots 1
 \cite_engine natbib_authoryear
 \use_bibtopic false
+\use_indices false
 \paperorientation portrait
+\suppress_date false
+\use_refstyle 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation indent
-\defskip medskip
+\paragraph_indentation default
 \quotes_language english
 \papercolumns 1
 \papersides 2
@@ -66,8 +83,9 @@ sweave
 \bullet 3 0 9 -1
 \tracking_changes false
 \output_changes false
-\author "" 
-\author "" 
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
 \end_header
 
 \begin_body
@@ -181,7 +199,7 @@ Data distributed on a regular grid, like DEM (Digital Elevation Model) data
 \begin_layout Enumerate
 Values recorded at given stations.
  Each point is referenced as its longitude-latitude (i.e., x-y location in
- degrees) and consists in one value peasured at that station.
+ degrees) and consists in one value measured at that station.
 \end_layout
 
 \begin_layout Standard
@@ -191,6 +209,7 @@ In R, and R additional packages distributed on CRAN (Comprehensive R Archive
 status collapsed
 
 \begin_layout Plain Layout
+
 http://cran.r-project.org
 \end_layout
 
@@ -214,7 +233,7 @@ sp
  gird referenced data and their manipulation.
  However, they are far too complex and sophisticate for our purpose of using
  AURELHY method.
- The main package to reading such data and writting them to a file is the
+ The main package to reading such data and writing them to a file is the
  
 \begin_inset Flex CharStyle:Pkg
 status collapsed
@@ -265,7 +284,7 @@ We made the decision to define our own objects as being the most simplest
 
 \begin_layout Itemize
 A 
-\begin_inset Flex CharStyle:Var
+\begin_inset Flex CharStyle:Class
 status collapsed
 
 \begin_layout Plain Layout
@@ -285,7 +304,6 @@ geomat
 status collapsed
 
 \begin_layout Plain Layout
-
 size
 \end_layout
 
@@ -296,7 +314,6 @@ size
 status collapsed
 
 \begin_layout Plain Layout
-
 x
 \end_layout
 
@@ -307,7 +324,6 @@ x
 status collapsed
 
 \begin_layout Plain Layout
-
 y
 \end_layout
 
@@ -316,7 +332,7 @@ y
  which are respectively the longitude and the latitude of the center of
  the top-left square in the grid.
  There are two derived objects: 
-\begin_inset Flex CharStyle:Var
+\begin_inset Flex CharStyle:Class
 status collapsed
 
 \begin_layout Plain Layout
@@ -326,7 +342,7 @@ dem
 \end_inset
 
  for digital elevation model, which is a 
-\begin_inset Flex CharStyle:Var
+\begin_inset Flex CharStyle:Class
 status collapsed
 
 \begin_layout Plain Layout
@@ -336,7 +352,7 @@ geomat
 \end_inset
 
  object containing integers, and a 
-\begin_inset Flex CharStyle:Var
+\begin_inset Flex CharStyle:Class
 status collapsed
 
 \begin_layout Plain Layout
@@ -346,7 +362,7 @@ geomask
 \end_inset
 
  object that also inherits from 
-\begin_inset Flex CharStyle:Var
+\begin_inset Flex CharStyle:Class
 status collapsed
 
 \begin_layout Plain Layout
@@ -360,7 +376,7 @@ geomat
 
 \begin_layout Itemize
 A 
-\begin_inset Flex CharStyle:Var
+\begin_inset Flex CharStyle:Class
 status collapsed
 
 \begin_layout Plain Layout
@@ -392,7 +408,7 @@ y
 
  are the longitude and latitude coordinates of the points (same units as
  for 
-\begin_inset Flex CharStyle:Var
+\begin_inset Flex CharStyle:Class
 status collapsed
 
 \begin_layout Plain Layout
@@ -422,7 +438,7 @@ aurelhy
 
  package also define routines to read and write those data in most commonly
  used formats, that is, Arc/Info ASCII grid for 
-\begin_inset Flex CharStyle:Var
+\begin_inset Flex CharStyle:Class
 status collapsed
 
 \begin_layout Plain Layout
@@ -436,7 +452,6 @@ geomat
 status collapsed
 
 \begin_layout Plain Layout
-
 read.geomat()
 \end_layout
 
@@ -447,7 +462,6 @@ read.geomat()
 status collapsed
 
 \begin_layout Plain Layout
-
 read.dem()
 \end_layout
 
@@ -458,7 +472,6 @@ read.dem()
 status collapsed
 
 \begin_layout Plain Layout
-
 read.geomask()
 \end_layout
 
@@ -469,7 +482,6 @@ read.geomask()
 status collapsed
 
 \begin_layout Plain Layout
-
 write.geomat()
 \end_layout
 
@@ -480,7 +492,6 @@ write.geomat()
 status collapsed
 
 \begin_layout Plain Layout
-
 write.dem()
 \end_layout
 
@@ -491,15 +502,14 @@ write.dem()
 status collapsed
 
 \begin_layout Plain Layout
-
-write.geomask()
+write.geomark()
 \end_layout
 
 \end_inset
 
 ).
  ESRI shapefiles to import/export 
-\begin_inset Flex CharStyle:Var
+\begin_inset Flex CharStyle:Class
 status collapsed
 
 \begin_layout Plain Layout
