@@ -1,4 +1,4 @@
-import(stats, graphics, gstat)
+import(stats, graphics, sp, gstat)
 
 export(add.points,
        as.geomat,

@@ -1,5 +1,14 @@
 = aurelhy News
 
+== aurelhy version 1.0-5
+
+* Check of argument passed through ... in update() and issue an error message.
+
+* A new dependence to package sp is added. Dependence to shapefiles package
+  becomes a suggestion (it is not strictly required for the execution of the
+  AURELHY interpolation).
+
+
 == aurelhy version 1.0-4
 
 * Added a function dist2sea() by Francois Delobel.

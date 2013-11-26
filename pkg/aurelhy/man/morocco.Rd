@@ -10,6 +10,7 @@ The \code{morocco} dataset is a 'geotm' object (georeferenced terrain model).
   This 'geotm' object contains a grid of 1986x1866 elevation points (in m). 
 }
 
-\seealso{ \code{\link{geotm}}, \code{\link{mbord}} , \code{\link{mmask}}}
+\seealso{ \code{\link{geotm}}, \code{\link{mbord}}, \code{\link{mmask}},
+  \code{\link{mseadist}}}
 
 \keyword{datasets}
