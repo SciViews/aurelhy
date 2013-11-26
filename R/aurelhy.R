@@ -290,6 +290,10 @@ add.vars = NULL, var.name = NULL, resample.geomask = TRUE)
 # An update method for the aurelhy object
 "update.aurelhy" <- function (object, nbr.pc, scale, model, vgmodel, ...)
 {
+	# Arguments match to ... is not allowed
+	if (length(list(...)))
+		stop("Currently no additional argument passed through ... is supported")
+	
 	if (!missing(model)) attr(object, "model") <- as.formula(model)
 	if (!missing(vgmodel))  attr(object, "vgm") <- vgmodel
 	
@@ -440,9 +444,11 @@ add.vars = NULL, var.name = NULL, resample.geomask = TRUE)
 	if (!identical(v.fit, FALSE)) {
 		# Adjust the semi-variogram with the model
 		vgm <- attr(object, "vgm") # The variogram model to use
+		
 		Pred <- pred
 		coordinates(Pred) <- ~ x + y
 		v <- variogram(resid ~ x + y, Pred)
+		#v <- variogram(resid ~ x + y, locations = ~ x + y, data = pred)
 		if (is.null(v.fit)) # Fit the variogram model now, if not provided
 			v.fit <- fit.variogram(v, vgm)
 
@@ -452,7 +458,10 @@ add.vars = NULL, var.name = NULL, resample.geomask = TRUE)
 		# points of interest using the mask
 		Pred.grid <- coords(Mask, "xy")
 		gridded(Pred.grid) <- ~ x + y
+		
 		k <- krige(resid ~ x + y, Pred, Pred.grid, model = v.fit)
+		#k <- krige(resid ~ x + y, locations = ~ x + y, data = pred,
+		#	newdata = Pred.grid, model = v.fit)
 		# Extract krigged residuals and keep only those corresponding to the mask
 		k.resid <- k["var1.pred"]@data[Mask]
 		names(k.resid) <- names(grid.mod)
