@@ -143,7 +143,7 @@ Simplification of the landscape description using the few first principal
 
 \begin_layout Itemize
 Prediction of the data to interpolate using a linear model with the principal
- axes and a few more descriptors as dependant variables
+ axes and a few more descriptors as dependent variables
 \end_layout
 
 \begin_layout Itemize
@@ -261,7 +261,7 @@ aurelhy
 
 \end_inset
 
- package (those who want to use these very specialized package can doso,
+ package (those who want to use these very specialized package can do so,
  and won't get much problem to convert data into a suitable format for working
  with 
 \begin_inset Flex CharStyle:Pkg
