@@ -6,7 +6,9 @@ Suggests: shapefiles
 Description: Hydrometeorological interpolation using the AURELHY method
 Version: 1.0-5
 Date: 2013-11-26
-Author: Philippe Grosjean
+Author: Philippe Grosjean [aut, cre]
+Authors@R: c(person("Philippe", "Grosjean", role = c("aut", "cre"),
+  email = "phgrosjean@sciviews.org"))
 Maintainer: Philippe Grosjean <phgrosjean@sciviews.org>
 License: GPL (>= 2)
 LazyLoad: yes
