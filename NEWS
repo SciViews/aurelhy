@@ -2,6 +2,22 @@
 
 == aurelhy version 1.0-5
 
+* Calculation of central sector in case of rectangular grid was incorect in the
+  aurelhy() function (bug report by Pierre Lassegues). Corrected.
+  
+* Transformation of latitude/longitude in decimal degrees assumed one degree
+  equals 110.9km. This is not true (even close to) everywhere on earth! New
+  function deg.lat() and deg.lon() now calculate this distance according to
+  latitude according to the WGS84 ellipsoid model. All function depending on
+  the conversion from latitude/longitude degrees into km now use these
+  calcuations. However, for the sake of simplicity of the algorithms, a single
+  conversion factor matching the latitude at the center of the geographic area
+  under consideration is used. Functions affected by this change are: aurelhy(),
+  auremask() and polar.coords().
+
+
+== aurelhy version 1.0-5
+
 * Check of argument passed through ... in update() and issue an error message.
 
 * A new dependence to package sp is added. Dependence to shapefiles package

@@ -1,3 +1,19 @@
+# Size of one degree in latitude/longitude, according to the WGS84 ellipsoid
+"deg.lat" <- function (latitude) {
+	# Latitude is in decimal degrees => phi in radians
+	phi <- latitude / 180 * pi
+	# See http://en.wikipedia.org/wiki/Latitude 
+	111.132954 - 0.559822 * cos(2*phi) + 0.001175*cos(4*phi)
+}
+
+"deg.lon" <- function (latitude) {
+	# Note that size of one degree in longitude depends only on the latitude!
+	# Latitude is in decimal degrees => phi in radians
+	phi <- latitude / 180 * pi
+	# See http://en.wikipedia.org/wiki/Longitude#Length_of_a_degree_of_longitude
+	cos(phi) * pi * 6378.137 / (180 * sqrt(1 - 0.00669437999014* sin(phi)^2))
+}
+
 # Given a point, calculate angle and distance from grid data (geomat object)
 "polar.coords" <- function (geomat, x, y, maxdist)
 {
@@ -5,12 +21,18 @@
 		stop("'geomat' must be a 'geomat' object")
 	if (!missing(maxdist) && !is.null(maxdist)) {
 		# maxdist is in km, but x and y are in decimal degrees
-		maxdeg <- maxdist / 110.9 # For latitudes: 110.9km/degree
-		
+		# Calculation of the size of ane degree in latitude/longitude according to
+		# central latitude in the considered geographical area
+		meanlat <- mean(range(coords(geomat, type = "y")))
+		lenx <- deg.lon(meanlat)
+		maxdegx <- maxdist / lenx
+		leny <- deg.lat(meanlat)
+		maxdegy <- maxdist / leny
 		# Filter out data contained in a square of maxdist * 1.05
-		m <- maxdeg * 1.05
-		xlim <- c(x - m, x + m)
-		ylim <- c(y - m, y + m)
+		mx <- maxdegx * 1.05
+		my <- maxdegy * 1.05
+		xlim <- c(x - mx, x + mx)
+		ylim <- c(y - my, y + my)
 		# Take a window out of these data
 		geomat <- window(geomat, xlim, ylim)
 	}
@@ -22,7 +44,7 @@
 	# Note: distances are in km
 	angles <- atan2(Y, X)	# Angles go from -pi to pi, and we want 0 to 2 * pi
 	angles <- ifelse(angles > 0, angles, 2 * pi + angles)
-	res <- data.frame(angle = angles, dist = sqrt(X^2 + Y^2) * 110.9)
+	res <- data.frame(angle = angles, dist = sqrt((X*lenx)^2 + (Y*leny)^2))
 	attr(res, "geomat") <- geomat
 	return(res)
 }

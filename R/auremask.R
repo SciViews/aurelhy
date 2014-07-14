@@ -81,10 +81,17 @@ angles = 0:7 * pi/4 + 0.01, n = 11, keep.origin = FALSE)
 		y0 <- coords(geomat, "y")[ncol(geomat) %/% 2]
 		maxdist <- max(attr(x, "dist"))
 		if (type == "rectangular") maxdist <- maxdist * (attr(x, "n") / 2)
-		maxdeg <- maxdist / 110.9
-		m <- maxdeg * 1.05
-		xlim <- c(x0 - m, x0 + m)
-		ylim <- c(y0 - m, y0 + m)
+		# Calculation of the size of ane degree in latitude/longitude according to
+		# central latitude in the considered geographical area
+		meanlat <- mean(range(coords(geomat, type = "y")))
+		lenx <- deg.lon(meanlat)
+		maxdegx <- maxdist / lenx
+		leny <- deg.lat(meanlat)
+		maxdegy <- maxdist / leny
+		mx <- maxdegx * 1.05
+		my <- maxdegx * 1.05
+		xlim <- c(x0 - mx, x0 + mx)
+		ylim <- c(y0 - my, y0 + my)
 		# Take a window out of these data
 		geomat2 <- window(geomat, xlim, ylim)
 		if (type == "radial") {			
@@ -104,8 +111,9 @@ angles = 0:7 * pi/4 + 0.01, n = 11, keep.origin = FALSE)
 			# Select rectangular grid sectors and look which points are in each
 			# rectangle in the geomat's grid
 			pt <- coords(geomat2, "xy")
-			xcut <- unique(x$x) / 110.9 + x0
-			ycut <- unique(x$y) / 110.9 + y0
+			meanlat2 <- mean(range(coords(geomat2, type = "y")))
+			xcut <- unique(x$x) / deg.lon(meanlat2) + x0
+			ycut <- unique(x$y) / deg.lat(meanlat2) + y0
 			pt$x <- cut(pt$x, breaks = xcut,  labels = 1:(length(xcut) - 1))
 			pt$y <- cut(pt$y, breaks = ycut,  labels = 1:(length(ycut) - 1))
 			# Eliminate data at origin, in case keep.origin == FALSE
@@ -158,13 +166,23 @@ angles = 0:7 * pi/4 + 0.01, n = 11, keep.origin = FALSE)
 	y0 <- coords(y, "y")[ncol(y) %/% 2]
 	maxdist <- max(attr(x, "dist"))
 	if (type == "rectangular") maxdist <- maxdist * (attr(x, "n") / 2)
-	maxdeg <- maxdist / 110.9
-	m <- maxdeg * 1.05
-	xlim <- c(x0 - m, x0 + m)
-	ylim <- c(y0 - m, y0 + m)
+	# Calculation of the size of ane degree in latitude/longitude according to
+	# central latitude in the considered geographical area
+	meanlat <- mean(range(coords(y, type = "y")))
+	lenx <- deg.lon(meanlat)
+	maxdegx <- maxdist / lenx
+	leny <- deg.lat(meanlat)
+	maxdegy <- maxdist / leny
+	mx <- maxdegx * 1.05
+	my <- maxdegy * 1.05
+	xlim <- c(x0 - mx, x0 + mx)
+	ylim <- c(y0 - my, y0 + my)
 	# Take a window out of these data
 	geomat <- window(y, xlim, ylim)
 	pt <- coords(geomat, "xy")
+	meanlat2 <- mean(range(coords(geomat, type = "y")))
+	lenx2 <- deg.lon(meanlat2)
+	leny2 <- deg.lat(meanlat2)
 	if (type == "radial") {
 		# Get the different groups to be used in different colors
 		pc <- polar.coords(geomat, x0, y0, maxdist)
@@ -173,12 +191,12 @@ angles = 0:7 * pi/4 + 0.01, n = 11, keep.origin = FALSE)
 		pc$angle <- cut(pc$angle, breaks = c(angles, 8),  labels = 1:length(angles))
 		# Use four different colors
 		cols <- (2 * as.numeric(pc$dist) %% 2) + (as.numeric(pc$angle) %% 2) + 1
-		points((pt$x - x0) * 110.9, (pt$y - y0) * 110.9, pch = "+", cex = 0.5, col = cols)
+		points((pt$x - x0) * lenx2, (pt$y - y0) * leny2, pch = "+", cex = 0.5, col = cols)
 	} else { # Rectangular data
 		# Select rectangular grid sectors and look which points are in each
 		# rectangle in the geomat's grid
-		xcut <- unique(x$x) / 110.9 + x0
-		ycut <- unique(x$y) / 110.9 + y0
+		xcut <- unique(x$x) / lenx2 + x0
+		ycut <- unique(x$y) / leny2 + y0
 		pc <- pt
 		pc$x <- cut(pc$x, breaks = xcut,  labels = 1:(length(xcut) - 1))
 		pc$y <- cut(pc$y, breaks = ycut,  labels = 1:(length(ycut) - 1))
@@ -189,6 +207,6 @@ angles = 0:7 * pi/4 + 0.01, n = 11, keep.origin = FALSE)
 
 		# Use fours different colors
 		cols <- (2 * as.numeric(pc$x) %% 2) + (as.numeric(pc$y) %% 2) + 1
-		points((pt$x - x0) * 110.9, (pt$y - y0) * 110.9, pch = "+", cex = 0.5, col = cols)	
+		points((pt$x - x0) * lenx2, (pt$y - y0) * leny2, pch = "+", cex = 0.5, col = cols)	
 	}	
 }

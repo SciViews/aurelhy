@@ -1,4 +1,6 @@
 \name{aurelhy-utilities}
+\alias{deg.lat}
+\alias{deg.lon}
 \alias{polar.coords}
 \alias{match.coords}
 \alias{coords}
@@ -15,6 +17,8 @@
 }
 
 \usage{
+deg.lat(latitude)
+deg.lon(latitude)
 polar.coords(geomat, x, y, maxdist)
 match.coords(points, table, tol = 0.002)
 coords(x, \dots)
@@ -25,6 +29,7 @@ dist2sea(geotm)
 }
 
 \arguments{
+  \item{latitude}{ the latitude in decimal degrees }
   \item{geomat}{ a 'geomat' object }
   \item{x}{ X coordinate of the reference point for \code{polar.coords()}, or
     a correct object for the other functions }
@@ -45,6 +50,10 @@ dist2sea(geotm)
 }
 
 \details{
+  \code{deg.lat()} and \code{deg.lon()} provide the length of one degree in,
+  respectively, latitude and longitude in km, given the corresponding latitude
+  in decimal degrees. The ellipsoid defined in WGS84 model is used for these
+  calculations.
   \code{polar.coords()} calculates polar coordinates of points.
   \code{match.coords()} selects points with matching coordinates, given a
   tolerance distance between the reference points (i.e., from a geotm grid,
@@ -58,6 +67,7 @@ dist2sea(geotm)
 }
 
 \value{
+  \code{deg.lat()} and \code{deg.lon()} return the length of one degree in km.
   \code{polar.coords()} returns a data frame with 'angle' in rad and 'dist'(ance)
   in km for the reference point to each point in the grid, within 'maxdist'.
   There is also a 'geomat' attribute containing the window of the initial
@@ -74,5 +84,13 @@ dist2sea(geotm)
 }
 
 \seealso{ \code{\link{geomat}}, \code{\link{auremask}} }
+
+\examples{
+# Size of one degree in latitude and longitude, given the latitude in decimal degrees
+deg.lat(c(0, 15, 30, 45, 60, 75, 90))
+# 110.574  110.649  110.852  111.132  111.412  111.618  111.694
+deg.lon(c(0, 15, 30, 45, 60, 75, 90))
+# 111.320  107.550  96.486  78.847  55.800  28.902  0.000
+}
 
 \keyword{utilities}
