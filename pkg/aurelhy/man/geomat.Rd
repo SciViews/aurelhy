@@ -153,8 +153,7 @@ as.geomat(x, \dots)
   inherit from 'geomat'.
   
   A 'geomat' object. For the \code{print()} method, size of the grid is presented
-  in km, with the corresponding conversion: one latitudinal degree is
-  approximately 110.9km.
+  in km.
 }
 
 \author{

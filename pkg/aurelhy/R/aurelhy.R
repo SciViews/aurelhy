@@ -62,17 +62,24 @@ add.vars = NULL, var.name = NULL, resample.geomask = TRUE)
 	maxdist <- max(attr(landmask, "dist"))
 	type <- attr(landmask, "type")
 	if (type == "rectangular") maxdist <- maxdist * (attr(landmask, "n") / 2)
-	maxdeg <- maxdist / 110.9
+	# Calculation of the size of ane degree in latitude/longitude according to
+	# central latitude in the considered geographical area
+	meanlat <- mean(range(coords(geotm, type = "y")))
+	lenx <- deg.lon(meanlat)
+	maxdegx <- maxdist / lenx
+	leny <- deg.lat(meanlat)
+	maxdegy <- maxdist / leny
 	coords <- coords(geotm)
 	size <- coords["size"]
-	band <- ceiling(maxdeg / size - 1)
-	if (x0 < band)
+	bandx <- ceiling(maxdegx / size - 1)
+	bandy <- ceiling(maxdegy / size - 1)
+	if (x0 < bandx)
 		stop("'x0' must be larger to leave enough space at left to calculate landscape variables")
-	if (y0 < band)
+	if (y0 < bandy)
 		stop("'x0' must be larger to leave enough space at left to calculate landscape variables")
-	if (nrow(geotm) - x0 - step * (nx - 1) < band)
+	if (nrow(geotm) - x0 - step * (nx - 1) < bandx)
 		stop("geotm has not enough data at right to calculate landscape variables")
-	if (ncol(geotm) - y0 - step * (ny - 1) < band)
+	if (ncol(geotm) - y0 - step * (ny - 1) < bandy)
 		stop("geotm has not enough data at the bottom to calculate landscape variables")
 	
 	# Resample geotm and mask using these new limits
@@ -137,11 +144,12 @@ add.vars = NULL, var.name = NULL, resample.geomask = TRUE)
 	res2 <- res[as.vector(mask), ]
 
 	# We choose a point in the middle of the original geotm object
-	m <- band * size * 1.01
+	mx <- bandx * size * 1.01
+	my <- bandy * size * 1.01
 	xorig <- coords(geotm, "x")[nrow(geotm) %/% 2]
 	yorig <- coords(geotm, "y")[ncol(geotm) %/% 2]
-	xlim <- c(xorig - m, xorig + m)
-	ylim <- c(yorig - m, yorig + m)
+	xlim <- c(xorig - mx, xorig + mx)
+	ylim <- c(yorig - my, yorig + my)
 	# Take a window out of these data
 	geotm2 <- window(geotm, xlim, ylim)
 	pt <- coords(geotm2, "xy")
@@ -159,15 +167,16 @@ add.vars = NULL, var.name = NULL, resample.geomask = TRUE)
 		# Select rectangular grid sectors and look which points are in each
 		# rectangle in the geomat's grid
 		pc <- coords(geotm2, "xy")
-		xcut <- unique(landmask$x) / 110.9 + xorig
-		ycut <- unique(landmask$y) / 110.9 + yorig
+		xcut <- unique(landmask$x) / lenx + xorig
+		ycut <- unique(landmask$y) / leny + yorig
 		pc$x <- cut(pc$x, breaks = xcut,  labels = 1:(length(xcut) - 1))
 		pc$y <- cut(pc$y, breaks = ycut,  labels = 1:(length(ycut) - 1))
 		# Create a unique vector combining x and y to give a number to each sector
 		pc$sector <- (as.numeric(pc$x) - 1) * (length(ycut) - 1) + as.numeric(pc$y)
 		# If we don't keep origin, eliminate it from the sectors
 		if (!attr(landmask, "keep.origin")) {
-			Center <- (length(xcut) - 1) * (length(ycut) - 1) %/% 2 + 1
+			## Bug corrected by Pierre Lassegues: (x*y) %/%2 + 1 instead of x * y %/% 2 + 1!
+			Center <- ((length(xcut) - 1) * (length(ycut) - 1)) %/% 2 + 1
 			pc$sector[pc$sector == Center] <- NA
 			toDecrement <- (pc$sector > Center)
 			toDecrement[is.na(toDecrement)] <- FALSE

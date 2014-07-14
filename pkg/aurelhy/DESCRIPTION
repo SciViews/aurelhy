@@ -4,8 +4,8 @@ Title: Hydrometeorological interpolation
 Depends: R (>= 2.10.0), stats, graphics, sp, gstat
 Suggests: shapefiles
 Description: Hydrometeorological interpolation using the AURELHY method
-Version: 1.0-5
-Date: 2013-11-26
+Version: 1.0-6
+Date: 2014-07-14
 Author: Philippe Grosjean [aut, cre]
 Authors@R: c(person("Philippe", "Grosjean", role = c("aut", "cre"),
   email = "phgrosjean@sciviews.org"))
