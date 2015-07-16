@@ -1,0 +1,28 @@
+language: r
+
+# Be strict when checking our package
+warnings_are_errors: true
+
+# Allow for sudo commands
+sudo: required
+
+# Email notifications
+notifications:
+  email:
+    on_success: change
+    on_failure: change
+
+# System dependencies for HTTP calling
+apt_packages:
+ - libcurl4-openssl-dev
+ - libxml2-dev
+r_binary_packages:
+ - gstat
+ - sp
+ - shapefiles
+
+# Install the bleeding edge version of a package from github (eg to pick
+# up a not-yet-released bugfix)
+# e.g., readr is to read csv, tsv and fwf into R
+#r_github_packages:
+# - hadley/readr

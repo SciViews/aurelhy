@@ -1,0 +1,31 @@
+
+# aurelhy
+
+image:https://travis-ci.org/phgrosjean/aurelhy.svg["Build Status", link="https://travis-ci.org/phgrosjean/aurelhy"]
+
+Hydrometeorological interpolation using the AURELHY method.
+
+_**Warning:** As of 16 July 2015, aurelhy is deprecated from R-Forge. Do not use it any more and refer to this Github repository._
+
+## Installation
+
+Make sure you have the **devtools** R package installed:
+
+    install.packages("devtools")
+
+Use `install_github()` to install the **aurelhy** package:
+
+    devtools::install_github("phgrosjean/aurelhy")
+    
+R should install all required dependencies automatically, and then it should compile and install **aurelhy**.
+
+## Usage
+
+Make the **aurelhy** package available in your R session:
+
+    library("aurelhy")
+    
+Get help about this package:
+
+    library(help = "aurelhy")
+    ?aurelhy
