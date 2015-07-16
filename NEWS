@@ -1,6 +1,14 @@
 = aurelhy News
 
-== aurelhy version 1.0-5
+== aurelhy version 1.0-7
+
+* Title set in title case. Complete sentence in description, and other notes
+  that complain in R CMD check with R 3.2.1.
+
+* Recompression of the example datasets (R CMD build --resave-data).
+
+
+== aurelhy version 1.0-6
 
 * Calculation of central sector in case of rectangular grid was incorect in the
   aurelhy() function (bug report by Pierre Lassegues). Corrected.
