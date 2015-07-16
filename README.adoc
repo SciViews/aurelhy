@@ -2,6 +2,8 @@
 # aurelhy
 
 image:https://travis-ci.org/phgrosjean/aurelhy.svg["Build Status", link="https://travis-ci.org/phgrosjean/aurelhy"]
+image:https://img.shields.io/coveralls/hadley/devtools.svg["Coverage Status", link="https://coveralls.io/r/hadley/devtools?branch=master"]
+image:http://www.r-pkg.org/badges/version/devtools["CRAN Status", link="http://cran.r-project.org/package=devtools"]
 
 Hydrometeorological interpolation using the AURELHY method.
 

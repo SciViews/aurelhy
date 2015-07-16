@@ -33,6 +33,8 @@ r_binary_packages:
 
 # Install the bleeding edge version of a package from github (eg to pick
 # up a not-yet-released bugfix)
-# e.g., readr is to read csv, tsv and fwf into R
-#r_github_packages:
-# - hadley/readr
+r_github_packages:
+ - jimhester/covr
+ 
+after_success:
+  - Rscript -e 'covr::codecov()'
