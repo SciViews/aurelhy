@@ -11,6 +11,12 @@ notifications:
   email:
     on_success: change
     on_failure: change
+    
+    
+# Environment variables
+env:
+ global:
+   - CRAN: http://cran.rstudio.com
 
 # System dependencies
 #apt_packages:
