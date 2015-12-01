@@ -23,7 +23,7 @@ Use `install_github()` to install the **aurelhy** package:
 ```r
 devtools::install_github("phgrosjean/aurelhy")
 ```
-    
+
 R should install all required dependencies automatically, and then it should compile and install **aurelhy**.
 
 ## Usage
@@ -40,4 +40,3 @@ Get help about this package:
 library(help = "aurelhy")
 ?aurelhy
 ```
-
