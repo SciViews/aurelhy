@@ -28,6 +28,7 @@ test_R <- svTest(function () {
 }
 
 testAurelhy <- function () {
-	checkTrue(TRUE, "a fake test... replace with real one!")
-	checkException(log("a"), "log(\"a\") raises an exception")
+	checkEqualsNumeric(c(size = 0.1, x = 10, y = 20),
+		attr(geomat(matrix(1, nrow = 10), 0.1, 10, 20), "coords"),
+		msg = "Coords of a simple geomat() object")
 }
