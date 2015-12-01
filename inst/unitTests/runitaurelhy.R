@@ -13,7 +13,7 @@ test_R <- svTest(function () {
 ## The test cases
 .setUp <- function () {
 	## Executed before each test function
-	# ...
+	library(aurelhy)
 
 	## Create a function (just an example, replace with real code here)
 	foo <- function(x) return(x)
