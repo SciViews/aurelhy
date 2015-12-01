@@ -1,7 +1,8 @@
 
 # aurelhy
 
-image:https://travis-ci.org/phgrosjean/aurelhy.svg["Build Status", link="https://travis-ci.org/phgrosjean/aurelhy"]
+image:https://travis-ci.org/phgrosjean/aurelhy.svg?branch=master["Build Status", link="https://travis-ci.org/phgrosjean/aurelhy"]
+OSXimage:https://travis-ci.org/phgrosjean/aurelhy.svg?branch=macosx["Build Status", link="https://travis-ci.org/phgrosjean/aurelhy"]
 image:https://codecov.io/github/phgrosjean/aurelhy/coverage.svg?branch=master["Coverage Status", link="https://codecov.io/github/phgrosjean/aurelhy?branch=master"]
 image:http://www.r-pkg.org/badges/version/aurelhy["CRAN Status", link="http://cran.r-project.org/package=aurelhy"]
 image:https://img.shields.io/badge/license-GPL-blue.svg["State", link="http://www.gnu.org/licenses/gpl-3.0.html"]
