@@ -1,5 +1,9 @@
 language: r
 
+os:
+  - linux
+  - osx
+
 #compiler:
 #  - g++
 
@@ -37,17 +41,19 @@ env:
 # - libxml2-dev
 # Binary R packages (faster, but not always latest versions!)
 r_binary_packages:
- - gstat
- - sp
- - shapefiles
- - FNN
- - intervals
- - spacetime
- - xts
- - zoo
+  - gstat
+  - sp
+  - shapefiles
+  - FNN
+  - intervals
+  - spacetime
+  - xts
+  - zoo
+  - covr
+
 # R package to be compiled from sources (latest versions!)
-r_packages:
- - covr
+#r_packages:
+# - covr
 
 # Bioconductor packages
 #bioc_packages:

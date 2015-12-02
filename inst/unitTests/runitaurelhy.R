@@ -27,11 +27,12 @@ test_R <- svTest(function () {
 	rm(foo, envir = .GlobalEnv)
 }
 
-testAurelhy <- function () {
+test_geomat <- function () {
+	# Create a very simple geomat() object and check its content
+	checkEqualsNumeric(matrix(1L, nrow = 10, ncol = 1),
+		geomat(matrix(1L, nrow = 10), 0.1, 10, 20),
+		msg = "Values of a simple geomat() object")
 	checkEqualsNumeric(c(size = 0.1, x = 10, y = 20),
-		attr(geomat(matrix(1, nrow = 10), 0.1, 10, 20), "coords"),
+		attr(geomat(matrix(1L, nrow = 10), 0.1, 10, 20), "coords"),
 		msg = "Coords of a simple geomat() object")
-	checkTrue(FALSE, msg = "Is FALSE true?")
-	checkException(log("a"))
-	checkTrue()
 }
