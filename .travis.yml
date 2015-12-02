@@ -49,11 +49,10 @@ r_binary_packages:
   - spacetime
   - xts
   - zoo
-  - covr
 
 # R package to be compiled from sources (latest versions!)
-#r_packages:
-# - covr
+r_packages:
+  - covr
 
 # Bioconductor packages
 #bioc_packages:
