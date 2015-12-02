@@ -31,4 +31,7 @@ testAurelhy <- function () {
 	checkEqualsNumeric(c(size = 0.1, x = 10, y = 20),
 		attr(geomat(matrix(1, nrow = 10), 0.1, 10, 20), "coords"),
 		msg = "Coords of a simple geomat() object")
+	checkTrue(FALSE, msg = "Is FALSE true?")
+	checkException(log("a"))
+	checkTrue()
 }
