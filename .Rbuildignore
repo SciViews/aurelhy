@@ -2,9 +2,9 @@
 .gitignore
 .git
 .git/*
-README.adoc
-NEWS.adoc
-FAQ.adoc
+README.md
+NEWS.md
+FAQ.md
 Makefile
 .Rprofile
 ^\.Rproj\.user$

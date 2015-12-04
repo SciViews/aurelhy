@@ -29,6 +29,9 @@ devtools::install_github("phgrosjean/aurelhy")
 
 R should install all required dependencies automatically, and then it should compile and install **aurelhy**.
 
+Latest devel version in source and Windows binaires format also available from [appveyor](https://ci.appveyor.com/project/phgrosjean/aurelhy/build/artifacts).
+
+
 
 ## Usage
 
