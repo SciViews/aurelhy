@@ -4,9 +4,6 @@ os:
   - linux
   - osx
 
-#compiler:
-#  - g++
-
 # Whitelist branches
 branches:
   only:
@@ -28,8 +25,7 @@ notifications:
   email:
     on_success: change
     on_failure: change
-    
-    
+     
 # Environment variables
 env:
  global:
@@ -49,9 +45,23 @@ r_binary_packages:
   - spacetime
   - xts
   - zoo
+  # For covr
+  - jsonlite  
+  - devtools
+  - httr
+  - crayon
+  - htmltools
+  - knitr
+  #- rex # Fails to compile for precise in Rutter's PPA
+  # For rex
+  - magrittr
+  - lazyeval
+  # For tests
+  - svUnit
 
 # R package to be compiled from sources (latest versions!)
 r_packages:
+  - rex
   - covr
 
 # Bioconductor packages
