@@ -59,10 +59,10 @@ datatype = c("numeric", "integer", "logical"), ...)
 	# Currently, support only "ascii" type
 	if (type != "ascii")
 		stop("type can only be \"ascii\" for the moment")
-	
+
 	# datatype can be "numeric", "integer" or "logical"
 	datatype <- match.arg(datatype)
-		
+
 	# For type = "ascii", we consider the following header:
 	#ncols         6000					# Integer
 	#nrows         6000					# Integer
@@ -100,7 +100,7 @@ datatype = c("numeric", "integer", "logical"), ...)
 	}
 	# In our geomat object, we always refer to the center of each square!
 	coords <- c(size = size, x = x, y = y)
-	
+
 	# Read the data in (possibly using integers to save memory space)
 	res <- switch(datatype,
 		numeric = scan(file, numeric(0), skip = nskip, quiet = TRUE),
@@ -147,10 +147,10 @@ nodata = -9999, ...)
 	# Currently, support only "ascii" type
 	if (type != "ascii")
 		stop("type can only be \"ascii\" for the moment")
-		
+
 	nodata <- as.numeric(nodata)[1]
 	if (isTRUE(integers)) nodata <- as.integer(nodata)
-	
+
 	# Write the "header" being:
 	#ncols         6000					# Integer
 	#nrows         6000					# Integer
@@ -162,21 +162,21 @@ nodata = -9999, ...)
 	#reals separated by a single space
 	#Note: for reals, decimal separator is always point ".", and is optional
 	#Note2: it is'nt clear if the format is case-sensitive, but it seems not!
-	
+
 	coords <- attr(x, "coords")
 	# Check these coordinates
 	if (is.null(coords))
 		stop("'x' does not seems to be a valid object, or is corrupted: no 'coords' attribute found")
 	if (!is.numeric(coords) || is.null(names(coords)) || !c("size", "x", "y") %in% names(coords))
 		stop("'x' coords seems to be corrupted (must contain 'size', 'x', and 'y')")
-		
+
 	cat("ncols ", nrow(x), "\n", file = file)
 	cat("nrows ", ncol(x), "\n", file = file, append = TRUE)
 	cat("xllcorner ", coords["x"] - coords["size"]/2, "\n", file = file, append = TRUE)
 	cat("yllcorner ", coords["y"] - coords["size"]/2, "\n", file = file, append = TRUE)
 	cat("cellsize ", coords["size"], "\n", file = file, append = TRUE)
 	cat("nodata_value ", nodata, "\n", file = file, append = TRUE)
-	
+
 	# Convert data into numeric or integer
 	if (isTRUE(integers)) {
 		x <- matrix(as.integer(x), ncol = ncol(x))
@@ -255,29 +255,29 @@ nodata = -9999, ...)
 		stop("'x0' cannot be < 1 or > nrow(x)")
 	if (y0 < 1 || y0 > nc)
 		stop("'y0' cannot be < 1 or > ncol(x)")
-	
+
 	# Do we resample by nx?
 	if (is.null(step)) {
 		# Try to guess a reasonable value for step from nx
-		step <- (nr - x0 + 1) %/% (nx - 1)		
+		step <- (nr - x0 + 1) %/% (nx - 1)
 	}
-	
+
 	# Resample by step
 	step <- round(step[1])
 	if (step < 1)
 		stop("'step' cannot be < 1")
-	
+
 	# Construct the resampling indexes
 	rex <- seq(from = x0, to = nr, by = step)
 	rey <- seq(from = y0, to = nc, by = step)
 	size <- coords["size"] * step
-	
+
 	# If we decide to get strict, make sure to respect nx and ny!
 	if (isTRUE(strict)) {
 		if (length(rex) > nx) rex <- rex[1:nx]
 		if (length(rey) > ny) rey <- rey[1:ny]
 	}
-	
+
 	# Construct the new grid
 	attrib <- attributes(x)
 	res <- x[rex, rey]
@@ -297,29 +297,29 @@ nodata = -9999, ...)
 	# Make sure xlim and ylim have two values and the first one is lowest
 	xlim <- sort(as.numeric(xlim[1:2]))
 	ylim <- sort(as.numeric(ylim[1:2]))
-	
+
 	# Extract a window from the original grid in x
 	coords <- coords(x)
 	X <- coords(x, 'x')
 	Y <- coords(x, 'y')
-	
+
 	# Do we keep some coordinates
 	keepX <- X >= xlim[1] & X <= xlim[2]
 	keepY <- Y >= ylim[1] & Y <= ylim[2]
-	
+
 	# Resample the matrix
 	attrib <- attributes(x)
 	res <- x[keepX, keepY]
 	# Dims has changed
 	attrib$dim <- dim(res)
-	
+
 	# Recalculate coords
 	lagX <- sum(X < xlim[1])
 	lagY <- sum(Y < ylim[1])
 	coords["x"] <- coords["x"] + lagX * coords["size"]
 	coords["y"] <- coords["y"] + lagY * coords["size"]
 	attrib$coords <- coords[1:3]
-	
+
 	attributes(res) <- attrib
 	return(res)
 }
@@ -334,7 +334,7 @@ asp = 1, ...)
 	# Plot the data
 	filled.contour(coords(x, "x"), coords(x, "y"), x, nlevels = nlevels,
 		color.palette = color.palette, xlab = xlab, ylab = ylab, asp = asp, ...)
-	return(invisible(x))	
+	return(invisible(x))
 }
 
 "image.geomat" <- function (x, max.xgrid = 500, col = terrain.colors(50),
@@ -347,32 +347,32 @@ ylab = if (add) "" else "Latitude", asp = 1, ...)
 	# Plot the data
 	image(coords(x, "x"), coords(x, "y"), x, col = col, add = add, xlab = xlab, ylab = ylab,
 		asp = asp, ...)
-	
+
 	# Draw the longitude and latitude axes at top and right too
 	if (!isTRUE(add)) {
 		axis(3)
 		axis(4)
 	}
-	return(invisible(x))	
+	return(invisible(x))
 }
 
 "contour.geomat" <- function (x, max.xgrid = 100, nlevels = 10, col = par("fg"),
 add = FALSE, xlab = if (add) "" else "Longitude",
 ylab = if (add) "" else "Latitude", asp = 1, ...)
-{	
+{
 	# Avoid trying to plot too large data by resampling in the grid in this case
 	if (nrow(x) > max.xgrid)
 		x <- resample(x, nx = max.xgrid)
 	# Plot the data
 	contour(coords(x, "x"), coords(x, "y"), x, nlevels = nlevels, col = col,
 		add = add, xlab = xlab, ylab = ylab, asp = asp, ...)
-	
+
 	# Draw the longitude and latitude axes at top and right too
 	if (!isTRUE(add)) {
 		axis(3)
 		axis(4)
 	}
-	return(invisible(x))	
+	return(invisible(x))
 }
 
 "persp.geomat" <- function (x, max.xgrid = 500, col = "green3",
@@ -386,7 +386,7 @@ expand = 1, shade = 0.75, border = NA, box = TRUE, ...)
 	persp(coords(x, "x"), coords(x, "y"), x/1000, theta = theta, phi = phi,
 		scale = FALSE, expand = expand, shade = shade, border = border,
 		box = box, col = col, xlab = xlab, ylab = ylab, ...)
-	return(invisible(x))	
+	return(invisible(x))
 }
 
 "image.geomask" <- function (x, max.xgrid = 500, col = c("#ffffff80", "#88888800"),
@@ -399,11 +399,11 @@ ylab = if (add) "" else "Latitude", asp = 1, ...)
 	# Plot the data
 	image(coords(x, "x"), coords(x, "y"), x, col = col, add = add,
 		xlab = xlab, ylab = ylab, asp = asp, ...)
-	
+
 	# Draw the longitude and latitude axes at top and right too
 	if (!isTRUE(add)) {
 		axis(3)
 		axis(4)
 	}
-	return(invisible(x))	
+	return(invisible(x))
 }
