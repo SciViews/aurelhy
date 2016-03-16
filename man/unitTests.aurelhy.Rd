@@ -12,12 +12,12 @@
 \author{Philippe Grosjean (\email{phgrosjean@sciviews.org})}
 
 \examples{
-#if (require(svUnit)) {
-#    clearLog()
+if (require(svUnit)) {
+    clearLog()
 	
-  \dontrun{
+  \donttest{
     ## This test is now moved to the tests directory
-	#runTest(svSuite("package:aurelhy"), "aurelhy")
+	runTest(svSuite("package:aurelhy"), "aurelhy")
  
   }
   \dontshow{
@@ -25,8 +25,8 @@
 	## don't want to show or run with example(unitTests.aurelhy)
   }
     ## Check errors at the end (needed to interrupt R CMD check)
-#    errorLog()
-#}
+    errorLog()
+}
 }
 
 \keyword{utilities}
