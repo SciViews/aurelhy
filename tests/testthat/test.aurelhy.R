@@ -1,6 +1,7 @@
 # Run tests using svUnit
 # This is a wrapper to run these from within testthat
 # so that R Studio's Test function and devtools::test() can be used too
+pkgname <- "aurelhy"
 
 test_svUnit <- function(pkgname) {
   library(svUnit)
@@ -27,4 +28,4 @@ test_svUnit <- function(pkgname) {
   res <- capture.output(runTest(svSuite(paste0("dir:", testdir)), pkgname))
   summary(Log())
 }
-test_svUnit("pkgtest")
+test_svUnit(pkgname)
