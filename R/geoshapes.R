@@ -1,7 +1,6 @@
 # Create a geoshapes object, either for a x,y data.frame, or from a list of
 # such data frames
-"geoshapes" <- function (x, name = "1", dbf = NULL)
-{
+geoshapes <- function (x, name = "1", dbf = NULL) {
 	if (inherits(x, "geoshapes")) return(x)	# Nothing to do
 	if (!is.null(dbf) && !inherits(dbf, "data.frame"))
 		stop("'dbf' must be a data frame or NULL")
@@ -17,17 +16,16 @@
 		if (!all(test))
 			stop("'x' must be a list of data frames with only columns 'x' and 'y'")
 		res <- x
- 	}
+	}
 	# Add the dbf attribute
 	attr(res, "dbf") <- dbf
 	# Change class
 	class(res) <- c("geoshapes", "list")
-	return(res)
+	res
 }
 
 # Read a simple ESRI shapes file
-"read.geoshapes" <- function (shpFile, dbf = TRUE)
-{
+read.geoshapes <- function (shpFile, dbf = TRUE) {
 	shapes <- convert.to.simple(read.shp(shpFile))
 	# Rename into 'id', 'x', and 'y'
 	colnames(shapes) <- tolower(colnames(shapes))
@@ -42,12 +40,11 @@
 		dbf <- read.dbf(dbfFile)$dbf
 		attr(res, "dbf") <- dbf
 	}
-	return(res)
+	res
 }
 
-"write.geoshapes" <- function (x, file,
-type = c("polygon", "point", "polyLine"), dbf = TRUE, arcgis = FALSE, ...)
-{
+write.geoshapes <- function (x, file,
+type = c("polygon", "point", "polyLine"), dbf = TRUE, arcgis = FALSE, ...) {
 	type <- match.arg(type)
 	type <- switch(type,
 		polygon = 5,
@@ -71,22 +68,21 @@ type = c("polygon", "point", "polyLine"), dbf = TRUE, arcgis = FALSE, ...)
 		}
 	}
 	colnames(df) <- c("Id", "X", "Y")
-	
+
 	# Convert to shapefile data
 	res <- convert.to.shapefile(as.data.frame(df),
 		data.frame(index = unique(df[, "Id"])), "index", type)
 	# Do we write also the associated dbf file
 	dbf <- attr(x, "dbf")
 	if (!is.null(dbf)) res$dbf$dbf <- dbf
-	
+
 	# write in into an ESRI shapefile
 	write.shapefile(res, file, arcgis = arcgis)
 
-	return(invisible(res))
+	invisible(res)
 }
 
-"print.geoshapes" <- function (x, ...)
-{
+print.geoshapes <- function (x, ...) {
 	L <- length(x)
 	if (L == 1) {
 		cat("A 'geoshapes' object containing one shape\n")
@@ -100,12 +96,11 @@ type = c("polygon", "point", "polyLine"), dbf = TRUE, arcgis = FALSE, ...)
 		cat("Associated data (first few lines):\n")
 		print(head(dbf, n = 5))
 	}
-	return(invisible(x))
+	invisible(x)
 }
 
 # Add a polygon corresponding to one shape in a graph
-"lines.geoshapes" <- function (x, which = 1, ...)
-{
+lines.geoshapes <- function (x, which = 1, ...) {
 	# Get the shape
 	shp <- x[[which]]
 	names(shp) <- c("x", "y")	# Sometimes, it is 'X' and 'Y'!
@@ -114,11 +109,11 @@ type = c("polygon", "point", "polyLine"), dbf = TRUE, arcgis = FALSE, ...)
 	# the same coordinates more than once
 	shp$y[duplicated(shp$x) & duplicated(shp$y)] <- NA
 	lines(shp, ...)
-	return(invisible(shp))
+	invisible(shp)
 }
 
 # Add points to a graph
-"points.geoshapes" <- function (x, which = "all", ...) {
+points.geoshapes <- function (x, which = "all", ...) {
 	pts <- attr(x, "shapes")
 	# Get the points selected by which, if not all
 	if (which != "all")  pts <- pts[pts$id %in% which, ]
