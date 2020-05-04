@@ -1,7 +1,7 @@
 
 # aurelhy
 
-[![Linux & OSX Build Status](https://travis-ci.com/phgrosjean/aurelhy.svg)](https://travis-ci.com/phgrosjean/aurelhy)
+[![Linux Build Status](https://travis-ci.com/phgrosjean/aurelhy.svg)](https://travis-ci.com/phgrosjean/aurelhy)
 [![Win Build Status](https://ci.appveyor.com/api/projects/status/github/phgrosjean/aurelhy?branch=master&svg=true)](https://ci.appveyor.com/project/phgrosjean/aurelhy)
 [![Coverage Status](https://img.shields.io/codecov/c/github/phgrosjean/aurelhy/master.svg)
 ](https://codecov.io/github/phgrosjean/aurelhy?branch=master)
