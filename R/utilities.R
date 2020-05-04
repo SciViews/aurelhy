@@ -1,12 +1,12 @@
 # Size of one degree in latitude/longitude, according to the WGS84 ellipsoid
-deg.lat <- function (latitude) {
+deg.lat <- function(latitude) {
   # Latitude is in decimal degrees => phi in radians
   phi <- latitude / 180 * pi
   # See http://en.wikipedia.org/wiki/Latitude
   111.132954 - 0.559822 * cos(2 * phi) + 0.001175 * cos(4 * phi)
 }
 
-deg.lon <- function (latitude) {
+deg.lon <- function(latitude) {
   # Note that size of one degree in longitude depends only on the latitude!
   # Latitude is in decimal degrees => phi in radians
   phi <- latitude / 180 * pi
@@ -15,7 +15,7 @@ deg.lon <- function (latitude) {
 }
 
 # Given a point, calculate angle and distance from grid data (geomat object)
-polar.coords <- function (geomat, x, y, maxdist) {
+polar.coords <- function(geomat, x, y, maxdist) {
   if (!inherits(geomat, "geomat"))
     stop("'geomat' must be a 'geomat' object")
   if (!missing(maxdist) && !is.null(maxdist)) {
@@ -51,29 +51,29 @@ polar.coords <- function (geomat, x, y, maxdist) {
 
 # match.coords matches numerical data with a tol value
 # TODO: optimize this, considering we have a grid!
-match.coords <- function (points, table, tol = 0.002) {
+match.coords <- function(points, table, tol = 0.002) {
   # Look if point is in the tol vicinity of one point in table
-  match.one <- function (point, table, tol)
+  match.one <- function(point, table, tol)
     any(point[1] - tol < table$x && point[1] + tol > table$x &&
-         point[2] - tol < table$y && point[2] + tol > table$y)
+      point[2] - tol < table$y && point[2] + tol > table$y)
   res <- apply(points[, c("x", "y")], 1, match.one, table = table, tol = tol)
   res
 }
 
 # A new coords method
-coords <- function (x, ...)
+coords <- function(x, ...)
   UseMethod("coords")
 
 # New resample method
-resample <- function (x, ...)
+resample <- function(x, ...)
   UseMethod("resample")
 
 # New add.points method
-add.points <- function (x, ...)
+add.points <- function(x, ...)
   UseMethod("add.points")
 
 # Augment a geomask with points near geopoints coordinates
-add.points.geomask <- function (x, geopoints, ...) {
+add.points.geomask <- function(x, geopoints, ...) {
   # Check arguments
   if (!inherits(x, "geomask"))
     stop("'x' must be a 'geomask' object")
@@ -110,13 +110,13 @@ add.points.geomask <- function (x, geopoints, ...) {
     # Merge added points
     attr(x, "added") <- rbind(added2, added)
   }
-  return(x)
+  x
 }
 
 # Distance to the sea from DEM
-dist2sea <- function (geotm) {
+dist2sea <- function(geotm) {
   # Edges: find sea pixels that have at least one terrestrian neighbour
-  externaledge <- function (geotm, o) {
+  externaledge <- function(geotm, o) {
     edgematrix <- geotm
     edgematrix[edgematrix >= 0] <- 0
     for (i in 1:nrow(o)) {

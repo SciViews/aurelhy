@@ -1,4 +1,6 @@
 import(stats, graphics, sp, gstat)
+importFrom("grDevices", "terrain.colors")
+importFrom("utils", "flush.console", "head")
 
 export(add.points,
        as.geomat,

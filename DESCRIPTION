@@ -1,17 +1,23 @@
 Package: aurelhy
 Type: Package
+Version: 1.0.8
+Date: 2020-05-04
 Title: Hydrometeorological Interpolation
-Version: 1.0-7
-Date: 2015-07-16
-Author: Philippe Grosjean [aut, cre]
-Authors@R: c(person("Philippe", "Grosjean", role = c("aut", "cre"),
-  email = "phgrosjean@sciviews.org"))
-Maintainer: Philippe Grosjean <phgrosjean@sciviews.org>
 Description: Hydrometeorological interpolation using the AURELHY method.
-Depends: R (>= 2.10.0), stats, graphics, sp, gstat
+Authors@R: c(person("Philippe", "Grosjean", role = c("aut", "cre"),
+  email = "phgrosjean@sciviews.org",
+  comment = c(ORCID = "0000-0002-2694-9471")))
+Maintainer: Philippe Grosjean <phgrosjean@sciviews.org>
+Depends: R (>= 2.10.0)
+Imports: stats, graphics, sp, gstat
 Suggests: shapefiles, svUnit
-License: GPL (>= 2)
+License: GPL-2
 URL: https://github.com/phgrosjean/aurelhy
 BugReports: https://github.com/phgrosjean/aurelhy/issues
 LazyLoad: yes
 NeedsCompilation: no
+#Roxygen: list(markdown = TRUE)
+#RoxygenNote: 7.1.0
+#VignetteBuilder: knitr
+Encoding: UTF-8
+Language: en-US

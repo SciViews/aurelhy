@@ -21,7 +21,7 @@
 
 \usage{
 aurelhy(geotm, geomask, landmask = auremask(), x0 = 30, y0 = 30, step = 12,
-    nbr.pc = 10, scale = FALSE, model = "data ~ .", vgmodel = vgm(1, "Sph", 10, 1),
+    nbr.pc = 10, scale = FALSE, model = "data ~ .", vgmodel = gstat::vgm(1, "Sph", 10, 1),
     add.vars = NULL, var.name = NULL, resample.geomask = TRUE)
 
 \method{print}{aurelhy}(x, \dots)
@@ -35,7 +35,7 @@ aurelhy(geotm, geomask, landmask = auremask(), x0 = 30, y0 = 30, step = 12,
 \method{summary}{predict.aurelhy}(object, \dots)
 \method{plot}{predict.aurelhy}(x, y, which = 1, \dots)
 
-\method{as.geomat}{aurelhy}(x, what = "PC1", nodata = NA, \dots) 
+\method{as.geomat}{aurelhy}(x, what = "PC1", nodata = NA, \dots)
 \method{as.geomat}{predict.aurelhy}(x,
     what = c("Interpolated", "Predicted", "KrigedResiduals", "KrigeVariance"),
 	nodata = NA,\dots)
@@ -75,7 +75,7 @@ aurelhy(geotm, geomask, landmask = auremask(), x0 = 30, y0 = 30, step = 12,
     left-hand side of the formula must always be 'data' and the right-hand
     considers all predictors spearated by a plus sign. To use all predictors,
     specify \code{data ~ .} (by default). }
-  \item{vgmodel}{ the variogram model to fit, as defined by the \code{vgm()}
+  \item{vgmodel}{ the variogram model to fit, as defined by the \code{gstat::vgm()}
     function of the gstat package }
   \item{add.vars}{ additional variable(s) measured at the same points as the
     geotm object, or the final interpolation grid. They will be used as
@@ -156,11 +156,11 @@ mmask2 <- add.points(mmask, mrain)
 # first ten PCs, plus the distance to the sea (mseadist) for prediction
 # Use a default radial window of analysis of 26km as maximum distance
 # and an interpolation grid of 0.1x0.1degrees (roughly 11x11km)
-# The variogram model is kept simple here, see ?vgm for other choices
+# The variogram model is kept simple here, see ?gstat::vgm for other choices
 # Be patient... this takes a little time to calculate!
 maurelhy <- aurelhy(morocco, mmask2, auremask(), x0 = 30, y0 = 54, step = 12,
-    scale = TRUE, nbr.pc = 10, vgmodel = vgm(100, "Sph", 1, 1),
-    add.vars = mseadist, var.name = "seadist")    
+    scale = TRUE, nbr.pc = 10, vgmodel = gstat::vgm(100, "Sph", 1, 1),
+    add.vars = mseadist, var.name = "seadist")
 maurelhy
 points(maurelhy) # Add the interpolated points on the map
 points(mrain, col = "red") # Add location of weather stations in red
@@ -233,7 +233,7 @@ points(mrain, col = "red")
 # A better plot for these interpolated rain data
 filled.contour(coords(geomrain, "x"), coords(geomrain, "y"), geomrain,
     asp = 1, xlab = "Longitude", ylab = "Latitude",
-    main = "AURELHY interpolated rain data", key.title = title(sub = "Rain (mm)\n\n"), 
+    main = "AURELHY interpolated rain data", key.title = title(sub = "Rain (mm)\n\n"),
     color.palette = colorRampPalette(c("red", "gray", "blue"), bias = 2))
 
 
@@ -249,7 +249,7 @@ filled.contour(coords(geomrain, "x"), coords(geomrain, "y"), geomrain,
 # are reused (not the use of I() to protect calcs inside a formula)!
 maurelhy2 <- update(maurelhy, scale = FALSE, nbr.pc = 7,
   model = data ~ x + y + z + PC3 + PC6 + PC7 + seadist + I(seadist^2),
-  vgmodel = vgm(100, "Gau", 1, 1))
+  vgmodel = gstat::vgm(100, "Gau", 1, 1))
 maurelhy2
 
 # Diagnostic of the new PCA on land descriptors without scaling

@@ -1,7 +1,0 @@
-= aurelhy To Do list
-  
-* Implement add.vars argument for update().
-
-* Creation of a mask from a geomat and a geoshape objects.
-
-* The vignette for this package.
