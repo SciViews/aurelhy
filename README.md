@@ -8,6 +8,7 @@
 ](https://codecov.io/github/phgrosjean/aurelhy?branch=master)
 [![CRAN Status](https://www.r-pkg.org/badges/version/aurelhy)](https://cran.r-project.org/package=aurelhy)
 [![License](https://img.shields.io/badge/license-GPL-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.html)
+[![Life
 cycle stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/#stable)
 <!-- badges: end -->
 
