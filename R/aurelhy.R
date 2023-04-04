@@ -66,10 +66,10 @@ resample.geomask = TRUE) {
   maxdist <- max(attr(landmask, "dist"))
   type <- attr(landmask, "type")
   if (type == "rectangular") maxdist <- maxdist * (attr(landmask, "n") / 2)
-  # Calculation of the size of ane degree in latitude/longitude according to
+  # Calculation of the size of one degree in latitude/longitude according to
   # central latitude in the considered geographical area
   meanlat <- mean(range(coords(geotm, type = "y")))
-  lenx <- deg.lon(meanlat)
+  lenx <- deg.lon(meanlat) # Attention: size in one degree in longitude depends only on latitude !
   maxdegx <- maxdist / lenx
   leny <- deg.lat(meanlat)
   maxdegy <- maxdist / leny
@@ -80,7 +80,7 @@ resample.geomask = TRUE) {
   if (x0 < bandx)
     stop("'x0' must be larger to leave enough space at left to calculate landscape variables")
   if (y0 < bandy)
-    stop("'x0' must be larger to leave enough space at left to calculate landscape variables")
+    stop("'y0' must be larger to leave enough space at left to calculate landscape variables")
   if (nrow(geotm) - x0 - step * (nx - 1) < bandx)
     stop("geotm has not enough data at right to calculate landscape variables")
   if (ncol(geotm) - y0 - step * (ny - 1) < bandy)

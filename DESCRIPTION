@@ -1,7 +1,7 @@
 Package: aurelhy
 Type: Package
-Version: 1.0.8
-Date: 2020-05-04
+Version: 1.0.9
+Date: 2023-04-04
 Title: Hydrometeorological Interpolation
 Description: Hydrometeorological interpolation using the AURELHY method.
 Authors@R: c(person("Philippe", "Grosjean", role = c("aut", "cre"),
