@@ -1,4 +1,4 @@
-import(stats, graphics, sp, gstat)
+import(stats, graphics, gstat)
 importFrom("grDevices", "terrain.colors")
 importFrom("utils", "flush.console", "head")
 

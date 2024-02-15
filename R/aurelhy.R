@@ -454,6 +454,8 @@ predict.aurelhy <- function(object, geopoints, variable, v.fit = NULL, ...) {
     vgm <- attr(object, "vgm") # The variogram model to use
 
     Pred <- pred
+
+    #### TODO: replace coordinates<-() by ??? sf::st_read()
     coordinates(Pred) <- ~ x + y
     v <- variogram(resid ~ x + y, Pred)
     #v <- variogram(resid ~ x + y, locations = ~ x + y, data = pred)
@@ -465,6 +467,8 @@ predict.aurelhy <- function(object, geopoints, variable, v.fit = NULL, ...) {
     # so, we need to krige on the whole bounding box, and then, select
     # points of interest using the mask
     Pred.grid <- coords(Mask, "xy")
+
+    #### TODO: replace gridded<-() by stars::make_grid()
     gridded(Pred.grid) <- ~ x + y
 
     k <- krige(resid ~ x + y, Pred, Pred.grid, model = v.fit)

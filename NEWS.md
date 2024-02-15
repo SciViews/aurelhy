@@ -1,3 +1,7 @@
+# aurelhy 1.1.0
+
+-   Dependency to {sp} package removed.
+
 # aurelhy 1.0.9
 
 -   Correction of a message (y0 instead of x0).
