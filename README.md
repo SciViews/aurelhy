@@ -1,9 +1,21 @@
-# aurelhy
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# ‘SciViews::R’ - Hydrometeorological Interpolation <a href='https://www.sciviews.org/aurelhy'><img src='man/figures/logo.png' align='right' height='138'/></a>
 
 <!-- badges: start -->
 
-[![Linux Build Status](https://travis-ci.com/phgrosjean/aurelhy.svg)](https://travis-ci.com/phgrosjean/aurelhy) [![Win Build Status](https://ci.appveyor.com/api/projects/status/github/phgrosjean/aurelhy?branch=master&svg=true)](https://ci.appveyor.com/project/phgrosjean/aurelhy) [![Coverage Status](https://img.shields.io/codecov/c/github/phgrosjean/aurelhy/master.svg)](https://codecov.io/github/phgrosjean/aurelhy?branch=master) [![CRAN Status](https://www.r-pkg.org/badges/version/aurelhy)](https://cran.r-project.org/package=aurelhy) [![License](https://img.shields.io/badge/license-GPL-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.html) [![Life cycle stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/#stable)
-
+[![R-CMD-check](https://github.com/SciViews/aurelhy/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/SciViews/aurelhy/actions/workflows/R-CMD-check.yaml)
+[![codeecov](https://codecov.io/gh/SciViews/aurelhy/branch/main/graph/badge.svg?token=6FYPRdhoFJ)](https://codecov.io/gh/SciViews/aurelhy?branch=main)
+[![CRAN
+Status](https://www.r-pkg.org/badges/version/aurelhy)](https://cran.r-project.org/package=aurelhy)
+[![License](https://img.shields.io/badge/license-GPL-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.html)
+[![r-universe
+status](https://sciviews.r-universe.dev/badges/aurelhy)](https://sciviews.r-universe.dev/aurelhy)
+[![License:
+MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Life cycle
+stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/#stable)
 <!-- badges: end -->
 
 > Hydrometeorological interpolation using the AURELHY method.
@@ -22,9 +34,12 @@ Use `install_github()` to install the {aurelhy} package:
 remotes::install_github("phgrosjean/aurelhy")
 ```
 
-R should install all required dependencies automatically, and then it should compile and install {aurelhy}.
+R should install all required dependencies automatically, and then it
+should compile and install {aurelhy}.
 
-Latest development version in source and Windows binaries format also available from [appveyor](https://ci.appveyor.com/project/phgrosjean/aurelhy/build/artifacts).
+Latest development version in source and Windows binaries format also
+available from
+[appveyor](https://ci.appveyor.com/project/phgrosjean/aurelhy/build/artifacts).
 
 ## Usage
 
@@ -43,4 +58,7 @@ library(help = "aurelhy")
 
 ## Code of Conduct
 
-Please note that the {aurelhy} project is released with a [Contributor Code of Conduct](https://contributor-covenant.org/version/2/0/CODE_OF_CONDUCT.html). By contributing to this project, you agree to abide by its terms.
+Please note that the {modelit} package is released with a [Contributor
+Code of
+Conduct](https://contributor-covenant.org/version/2/1/CODE_OF_CONDUCT.html).
+By contributing to this project, you agree to abide by its terms.

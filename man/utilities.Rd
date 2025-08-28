@@ -72,10 +72,10 @@ dist2sea(geotm)
   in km for the reference point to each point in the grid, within 'maxdist'.
   There is also a 'geomat' attribute containing the window of the initial
   'geomat' object containing the considered points.
-  
+
   \code{match.coords()} returns a vector of logical of the same length as the
-  number of colunms in the points data frame (that must contain 'x' and 'y'
-  columns with coordinates of points to be matched). 
+  number of columns in the points data frame (that must contain 'x' and 'y'
+  columns with coordinates of points to be matched).
 }
 
 \author{

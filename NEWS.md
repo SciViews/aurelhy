@@ -1,3 +1,11 @@
+# aurelhy 1.1.0
+
+-   License changed to MIT
+
+-   GitHub repository refreshed
+
+-   Tests converted to testthat
+
 # aurelhy 1.0.9
 
 -   Correction of a message (y0 instead of x0).
@@ -18,7 +26,7 @@
 
 # aurelhy 1.0-6
 
--   Calculation of central sector in case of rectangular grid was incorect in the `aurelhy()` function (bug report by Pierre Lassegues). Corrected.
+-   Calculation of central sector in case of rectangular grid was incorrect in the `aurelhy()` function (bug report by Pierre Lassegues). Corrected.
 
 -   Transformation of latitude/longitude in decimal degrees assumed one degree equals 110.9km. This is not true (even close to) everywhere on earth! New functions `deg.lat()` and `deg.lon()` now calculate this distance according to latitude according to the WGS84 ellipsoid model. All function depending on the conversion from latitude/longitude degrees into km now use these calculations. However, for the sake of simplicity of the algorithms, a single conversion factor matching the latitude at the center of the geographic area under consideration is used. Functions affected by this change are: `aurelhy()`, `auremask()` and `polar.coords()`.
 
@@ -44,7 +52,7 @@ A new dependence to package **sp** is added. Dependence to **shapefiles** packag
 
 -   A new argument in `aurelhy()`, `resample.geomask=` indicates if the 'geomask' object should be resampled (provided with same grid as the 'geomat' object), or not (provided with same grid as final interpolation).
 
--   `predict.aurelhy()` can now accept argument `v.fit = FALSE`. In this case, residuals are not kriged. This saves computation when kriging is not required, e.g., when one look for best predictors in the regression. All methods appled to 'predict.aurelhy' objects are adapted to cope with objects that do not have kriged residuals recorded.
+-   `predict.aurelhy()` can now accept argument `v.fit = FALSE`. In this case, residuals are not kriged. This saves computation when kriging is not required, e.g., when one look for best predictors in the regression. All methods applied to 'predict.aurelhy' objects are adapted to cope with objects that do not have kriged residuals recorded.
 
 -   `add.points()` generic function added, and method for 'geomask': adds points that are outside of a 'geomask', but inside of the grid from a 'geopoints' object. It allows to add stations that are close to, but outside the area of interest (useful for correct kriging of the residuals).
 
@@ -56,7 +64,7 @@ A new dependence to package **sp** is added. Dependence to **shapefiles** packag
 
 -   If a 'geoshapes' object had no "shapes" attribute (like the `mbord` example dataset), `write.geoshapes()` failed. Now the "shapes" data are reconstructed from the object itself, if missing.
 
--   `geopoints()` incorrectly returned a 'geospoints' object. Corrected.
+-   `geopoints()` incorrectly returned a 'geopoints' object. Corrected.
 
 -   `read.geomask()` returned an object of class c('geomask', 'matrix'), instead of c('geomask', 'geomat', 'matrix'). Corrected.
 
@@ -70,7 +78,7 @@ A new dependence to package **sp** is added. Dependence to **shapefiles** packag
 
 -   The `update()` method of 'aurelhy' object is now implemented, and the example is expanded to show how one can use it to explore various interpolation parameters easily.
 
--   `plot(x, which = 7)` graph for 'aurely.predict' objects is now implemented.
+-   `plot(x, which = 7)` graph for 'aurelhy.predict' objects is now implemented.
 
 -   **aurelhy** can now also handle a rectangular grid ('auremask' object).
 
@@ -108,7 +116,7 @@ A new dependence to package **sp** is added. Dependence to **shapefiles** packag
 
 -   Bug correction in `write.geomat()`: the matrix was transposed.
 
--   `read.geoshapes()`: the function failed when coordinates where named 'X' and 'Y' instead of 'x' and 'y'. Also adde the possibility to read the DBF file at the same time ('dbf' attribute of the object).
+-   `read.geoshapes()`: the function failed when coordinates where named 'X' and 'Y' instead of 'x' and 'y'. Also added the possibility to read the DBF file at the same time ('dbf' attribute of the object).
 
 -   geoshapes objects now have a `dbf=` attribute that holds the table of the associated DBF file.
 
@@ -122,7 +130,7 @@ A new dependence to package **sp** is added. Dependence to **shapefiles** packag
 
 -   Addition of an example 'geomask' object (Morocco territory mask in `mmask`).
 
--   Objects 'dem' are renamed 'geotm' for "georeferenced terrain model" for a more homogene naming in comparison with the other geo\* objects
+-   Objects 'dem' are renamed 'geotm' for "georeferenced terrain model" for a more homogeneous naming in comparison with the other geo\* objects
 
 # aurelhy 0.1-1
 

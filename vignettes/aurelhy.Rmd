@@ -1,0 +1,22 @@
+---
+title: "'SciViews::R' - Hydrometeorological Interpolation"
+author: "Philippe Grosjean"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 3
+    fig_caption: yes
+vignette: >
+  %\VignetteIndexEntry{'SciViews::R' - Hydrometeorological Interpolation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.align = 'center',
+  fig.width = 7, fig.height = 5, out.width = "100%")
+library(aurelhy)
+```
+
+The {aurelhy} package does ...

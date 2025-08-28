@@ -73,7 +73,7 @@ aurelhy(geotm, geomask, landmask = auremask(), x0 = 30, y0 = 30, step = 12,
     the correlation matrix. }
   \item{model}{ a formula describing the model used to predict the data. The
     left-hand side of the formula must always be 'data' and the right-hand
-    considers all predictors spearated by a plus sign. To use all predictors,
+    considers all predictors separated by a plus sign. To use all predictors,
     specify \code{data ~ .} (by default). }
   \item{vgmodel}{ the variogram model to fit, as defined by the \code{gstat::vgm()}
     function of the gstat package }
@@ -88,7 +88,7 @@ aurelhy(geotm, geomask, landmask = auremask(), x0 = 30, y0 = 30, step = 12,
     and \code{step} to get the final mask of calculated points? If \code{TRUE}
     (by default), geomask should have the same grid as geotm. Otherwise, the
     geomask must exactly match the points where aurelhy should perform the
-    interpolation. The default value allows for a backward-compatible behaviour
+    interpolation. The default value allows for a backward-compatible behavior
     of the function (aurelhy version =< 1.0-2). }
   \item{x}{ an 'aurelhy' or 'predict.aurelhy' object, depending on the method invoked }
   \item{y}{ a 'geopoints' object to create a plot best depicting the

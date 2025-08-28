@@ -1,22 +1,13 @@
-citHeader("To cite aurelhy in publications use:")
-
-citEntry(entry="Manual",
-         title = "AURELHY: a R package implementing the AURELHY method",
-         author = "Philippe Grosjean",
-         organization = "UMONS",
-         address      = "Mons, Belgium",
-         year         = version$year,
-         url          = "http://r-forge.r-project.org/projects/aurelhy/",
-
-         textVersion =
-         paste("Grosjean, Ph. (", version$year, "). ",
-               "AURELHY: a R package implementing the AURELHY method. ",
-               "UMONS, Mons, Belgium. ",
-               "URL http://r-forge.r-project.org/projects/aurelhy/.",
-               sep="")
-         )
-
-citFooter("We have invested a lot of time and effort in creating aurelhy,",
-          "please cite it when using it together with R.",
-	  "See also", sQuote("citation()"),
-	  "for citing R.")
+bibentry(
+  bibtype = "Misc",
+  header  = "To cite SciViews::R in publications, please use",
+  author  = c(person("Philippe", "Grosjean", role = c("aut", "cre"),
+                     email = "phgrosjean@sciviews.org",
+                     comment = c(ORCID = "0000-0002-2694-9471")),
+              person("Guyliann", "Engels", role = "aut",
+                     email = "guyliann.engels@umons.ac.be",
+                     comment = c(ORCID = "0000-0001-9514-1014"))),
+  title   = "'data.trame': A better 'data.frame' for 'SciViews::R'",
+  year    = "2025",
+  url     = "https://sciviews.r-universe.dev/",
+)

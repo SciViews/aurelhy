@@ -8,7 +8,7 @@
 \title{A 'geopoints' object containing one or more georeferenced data}
 
 \description{
-  Geospoints objects contain data for one or more points defined by their
+  Geopoints objects contain data for one or more points defined by their
   longitude and latitude in decimal degrees. These objects can be read or write
   to ERSI shape files, or DBF database.
 }

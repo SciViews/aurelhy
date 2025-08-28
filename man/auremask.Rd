@@ -30,7 +30,7 @@ auremask(type = "radial", dist = c(1, 6, 11, 16, 21, 26),
     window. Avoid to use angles parallels to the grid, like 0 or pi/4, because you
     will have points going into one or the other sector of your window of analysis,
     depending on rounding of the numbers in the floating-point calculations! A slight
-    shift angle (0.01, by default) avoids this unstability }
+    shift angle (0.01, by default) avoids this instability }
   \item{n}{ The number of grid points in latitude and longitude to use for a
     \code{"rectangular"} window. For instance, if \code{n = 11}, the window will be
     made of 11*11 = 121 points (minus one if \code{keep.origin is FALSE}). This

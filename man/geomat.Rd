@@ -85,7 +85,7 @@ as.geomat(x, \dots)
   \item{file}{ The path to the file used for reading or writing data }
   \item{type}{ The type of data to read/write. Currently, only \"ascii\", which
     means ARC/INFO ASCII GRID format (.asc file). For \code{coords()}, it is
-    the type of coordinates to ba calculated: \code{"par"} is the vector
+    the type of coordinates to be calculated: \code{"par"} is the vector
     defining the coordinates as 'size' of the cell, 'x' and 'y' coordinates of
     the center of the top-left square in the grid and the 'x1', 'y1' coordinates
     of the top-left point and 'x2', 'y2' coordinates of the bottom-right points
@@ -117,9 +117,9 @@ as.geomat(x, \dots)
     (latitude) for the window }
   \item{y}{ Unused argument to match \code{plot()} method definition }
   \item{max.xgrid}{ The maximum number of points in x direction to use. If the
-    grid that is plotted is denser, it is furst resampled to avoid drawing a
+    grid that is plotted is denser, it is first resampled to avoid drawing a
     graph with too much points }
-  \item{nlevels}{ the number of contour levles to calculate }
+  \item{nlevels}{ the number of contour levels to calculate }
   \item{color.palette}{ a color palette generation function }
   \item{col}{ A vector of colors to use for the plot }
   \item{xlab}{ The label of the X axis (\code{"Longitude"} by default) }
@@ -140,7 +140,7 @@ as.geomat(x, \dots)
     to daylight illumination. }
   \item{border}{ the color of the borders of facets. If \code{NA}, no border is
     drawn. This is usually a good value when shading is used }
-  \item{box}{ If \code{TRUE}, a box, aznd axes are drawn around the perspective
+  \item{box}{ If \code{TRUE}, a box, and axes are drawn around the perspective
     plot }
   \item{\dots}{ Further arguments passed to the functions (only used for the
     plotting method) }
@@ -151,7 +151,7 @@ as.geomat(x, \dots)
   'matrix' is created. Methods either return an object of same class, or are used
   for their side effect of plotting a graph. Objects 'geotm' and 'geomask' also
   inherit from 'geomat'.
-  
+
   A 'geomat' object. For the \code{print()} method, size of the grid is presented
   in km.
 }

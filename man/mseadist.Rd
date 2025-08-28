@@ -8,7 +8,7 @@ The \code{mseadist} dataset is a 'geomat' object (georeferenced data).
 }
 \format{
   This 'geomat' object contains a matrix with distance from the sea for all
-  points in the \code{morocco} dataset. It can be used as supplemntary variable
+  points in the \code{morocco} dataset. It can be used as supplementary variable
   for AURELHY interpolation.
 }
 
